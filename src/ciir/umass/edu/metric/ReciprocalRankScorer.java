@@ -9,40 +9,39 @@
 
 package ciir.umass.edu.metric;
 
-import java.util.Arrays;
-
 import ciir.umass.edu.learning.RankList;
+
+import java.util.Arrays;
 
 /**
  * @author vdang
  */
 public class ReciprocalRankScorer extends MetricScorer {
 	
-	public ReciprocalRankScorer()
-	{
-		this.k = 0;//consider the whole list
+	public ReciprocalRankScorer() {
+		this(0); // specially consider whole list.
 	}
-	public double score(RankList rl)
-	{
+	public ReciprocalRankScorer(int k) {
+		assert(k >= 0);
+		this.k = k;
+	}
+	public double score(RankList rl) {
 		int size = (rl.size() > k) ? k : rl.size();
-		int firstRank = -1;
-		for(int i=0;i<size && (firstRank==-1);i++)
-		{
+		if(k == 0) size = rl.size();
+		for(int i = 0; i < size; i++) {
 			if(rl.get(i).getLabel() > 0.0)//relevant
-				firstRank = i+1;
+			  return 1.0f / (float)(i+1);
 		}
-		return (firstRank==-1)?0:(1.0f/firstRank);
+		return 0;
 	}
-	public MetricScorer copy()
-	{
-		return new ReciprocalRankScorer();
+	public MetricScorer copy() {
+		return new ReciprocalRankScorer(k);
 	}
-	public String name()
-	{
+	public String name() {
+		if(k == 0) return "RR";
 		return "RR@"+k;
 	}
-	public double[][] swapChange(RankList rl)
-	{
+	public double[][] swapChange(RankList rl) {
 		int firstRank = -1;
 		int secondRank = -1;
 		int size = (rl.size() > k) ? k : rl.size();

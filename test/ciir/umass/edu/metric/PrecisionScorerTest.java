@@ -1,33 +1,13 @@
 package ciir.umass.edu.metric;
 
-import ciir.umass.edu.learning.DataPoint;
-import ciir.umass.edu.learning.DenseDataPoint;
-import ciir.umass.edu.learning.RankList;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author jfoley.
  */
-public class PrecisionScorerTest {
-  public DataPoint pt(int label) {
-    DenseDataPoint x = new DenseDataPoint();
-    x.setLabel(label);
-    return x;
-  }
-
-  public RankList list(int... labels) {
-    List<DataPoint> pts = new ArrayList<>();
-    for (int label : labels) {
-      pts.add(pt(label));
-    }
-    return new RankList(pts);
-  }
-
+public class PrecisionScorerTest extends MeasureTestUtil {
   @Test
   public void testSimple() {
     PrecisionScorer p10 = new PrecisionScorer();
