@@ -125,12 +125,9 @@ public class LinearRegRank extends Ranker {
 			BufferedReader in = new BufferedReader(new StringReader(fullText));
 
 			KeyValuePair kvp = null;
-			while((content = in.readLine()) != null)
-			{
+			while((content = in.readLine()) != null) {
 				content = content.trim();
-				if(content.length() == 0)
-					continue;
-				if(content.indexOf("##")==0)
+				if(content.isEmpty() || content.startsWith("##"))
 					continue;
 				kvp = new KeyValuePair(content);
 				break;
@@ -177,11 +174,11 @@ public class LinearRegRank extends Ranker {
 	}
 	/**
 	 * Solve a system of linear equations Ax=B, in which A has to be a square matrix with the same length as B
-	 * @param A
-	 * @param B
+	 * @param A matrix
+	 * @param B result matrix
 	 * @return x
 	 */
-	protected double[] solve(double[][] A, double[] B)
+	public static double[] solve(double[][] A, double[] B)
 	{
 		if(A.length == 0 || B.length == 0)
 		{
@@ -206,10 +203,8 @@ public class LinearRegRank extends Ranker {
 		for(int i=0;i<a.length;i++)
 		{
 			a[i] = new double[A[i].length];
-			if(i > 0)
-			{
-				if(a[i].length != a[i-1].length)
-				{
+			if(i > 0) {
+				if(a[i].length != a[i-1].length) {
 					System.out.println("Error: Solving Ax=B: A is NOT a square matrix.");
 					System.exit(1);
 				}

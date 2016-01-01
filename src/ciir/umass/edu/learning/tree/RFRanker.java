@@ -71,8 +71,6 @@ public class RFRanker extends Ranker {
 		//start the bagging process
 		for(int i=0;i<nBag;i++)
 		{
-			if(i % LambdaMART.gcCycle == 0)
-				System.gc();
 			Sampler sp = new Sampler();
 			//create a "bag" of samples by random sampling from the training set
 			List<RankList> bag = sp.doSampling(samples, subSamplingRate, true);

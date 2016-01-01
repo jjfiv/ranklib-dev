@@ -346,10 +346,6 @@ public class RanklibArgs {
       }
       else if(args[i].compareTo("-estop")==0)
         LambdaMART.nRoundToStopEarly = Integer.parseInt(args[++i]);
-        //for debugging
-      else if(args[i].compareTo("-gcc")==0)
-        LambdaMART.gcCycle = Integer.parseInt(args[++i]);
-
         //Random forest
       else if(args[i].compareTo("-bag")==0)
         RFRanker.nBag = Integer.parseInt(args[++i]);

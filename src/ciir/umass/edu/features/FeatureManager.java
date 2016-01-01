@@ -393,9 +393,8 @@ public class FeatureManager {
 	 */
 	private static void save(RankList r, BufferedWriter out) throws Exception
 	{
-		for(int j=0;j<r.size();j++)
-		{
-			out.write(r.get(j).toString());
+		for (DataPoint pt : r) {
+			out.write(pt.toString());
 			out.newLine();
 		}
 	}
