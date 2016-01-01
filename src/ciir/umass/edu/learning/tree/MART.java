@@ -27,17 +27,18 @@ public class MART extends LambdaMART {
 	//Parameters
 	//Inherits *ALL* parameters from LambdaMART
 	
-	public MART()
-	{		
+	public MART() {	}
+
+	public MART(MART prototype) {
+		super(prototype);
 	}
 	public MART(List<RankList> samples, int[] features, MetricScorer scorer)
 	{
 		super(samples, features, scorer);
 	}
 	
-	public Ranker createNew()
-	{
-		return new MART();
+	public Ranker createNew() {
+		return new MART(this);
 	}
 	public String name()
 	{
@@ -48,20 +49,15 @@ public class MART extends LambdaMART {
 		for(int i=0;i<martSamples.length;i++)
 			pseudoResponses[i] = martSamples[i].getLabel() - modelScores[i];
 	}
-	protected void updateTreeOutput(RegressionTree rt)
-	{
+	protected void updateTreeOutput(RegressionTree rt) {
 		List<Split> leaves = rt.leaves();
-		for(int i=0;i<leaves.size();i++)
-		{
+		for (Split s : leaves) {
 			float s1 = 0.0F;
-			Split s = leaves.get(i);
 			int[] idx = s.getSamples();
-			for(int j=0;j<idx.length;j++)
-			{
-				int k = idx[j];
+			for (int k : idx) {
 				s1 += pseudoResponses[k];
 			}
-			s.setOutput(s1/idx.length);
+			s.setOutput(s1 / idx.length);
 		}
 	}
 

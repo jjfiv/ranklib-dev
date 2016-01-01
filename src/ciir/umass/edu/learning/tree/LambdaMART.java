@@ -9,10 +9,7 @@
 
 package ciir.umass.edu.learning.tree;
 
-import ciir.umass.edu.learning.DataPoint;
-import ciir.umass.edu.learning.RankerType;
-import ciir.umass.edu.learning.RankList;
-import ciir.umass.edu.learning.Ranker;
+import ciir.umass.edu.learning.*;
 import ciir.umass.edu.metric.MetricScorer;
 import ciir.umass.edu.utilities.MergeSorter;
 import ciir.umass.edu.utilities.MyThreadPool;
@@ -33,19 +30,19 @@ import java.util.List;
  *  Journal of Information Retrieval, 2007.
  */
 public class LambdaMART extends Ranker {
-	//Parameters
+
 	/** The number of trees to create in this ensemble. */
-	public static int nTrees = 1000;
+	public int nTrees = 1000;
 	/** Learning rate, or shrinkage. */
-	public static float learningRate = 0.1F;
+	public float learningRate = 0.1F;
 	/** Number of threshold candidates. */
-	public static int nThreshold = 256;
+	public int nThreshold = 256;
 	/**
 	 * If no performance gain on the *VALIDATION* data is observed in #rounds, stop the training process right away.
 	 */
-	public static int nRoundToStopEarly = 100;
-	public static int nTreeLeaves = 10;
-	public static int minLeafSupport = 1;
+	public int nRoundToStopEarly = 100;
+	public int nTreeLeaves = 10;
+	public int minLeafSupport = 1;
 
 	//Local variables
 	protected float[][] thresholds = null;
@@ -66,7 +63,18 @@ public class LambdaMART extends Ranker {
 	public LambdaMART(List<RankList> samples, int[] features, MetricScorer scorer) {
 		super(samples, features, scorer);
 	}
-	
+
+	/** Construct this from a "prototype" instance that has all features configured as you would like... */
+	public LambdaMART(LambdaMART config) {
+		this.nTrees = config.nTrees;
+		this.learningRate = config.learningRate;
+		this.nThreshold = config.nThreshold;
+		this.nRoundToStopEarly = config.nRoundToStopEarly;
+		this.nTreeLeaves = config.nTreeLeaves;
+		this.minLeafSupport = config.minLeafSupport;
+		this.factory = config.factory;
+	}
+
 	public void init()
 	{
 		PRINT("Initializing... ");		
@@ -164,14 +172,13 @@ public class LambdaMART extends Ranker {
 		System.gc();
 		PRINTLN("[Done]");
 	}
-	public void learn()
-	{
+	public void learn() {
 		ensemble = new Ensemble();
 		
 		PRINTLN("---------------------------------");
 		PRINTLN("Training starts...");
 		PRINTLN("---------------------------------");
-		PRINTLN(new int[]{7, 9, 9}, new String[]{"#iter", scorer.name()+"-T", scorer.name()+"-V"});
+		PRINTLN(new int[]{7, 9, 9}, new String[]{"#tree", scorer.name()+"-T", scorer.name()+"-V"});
 		PRINTLN("---------------------------------");		
 		
 		//Start the gradient boosting process
@@ -263,18 +270,9 @@ public class LambdaMART extends Ranker {
 		}
 		PRINTLN("---------------------------------");
 	}
-	public double eval(DataPoint dp)
-	{
-		return ensemble.eval(dp);
-	}	
-	public Ranker createNew()
-	{
-		return new LambdaMART();
-	}
-	public String toString()
-	{
-		return ensemble.toString();
-	}
+	public double eval(DataPoint dp) { return ensemble.eval(dp); }
+	public Ranker createNew() { return new LambdaMART(this); }
+	public String toString() { return ensemble.toString(); }
 	public String model() {
 		String output = "## " + name() + "\n";
 		output += "## No. of trees = " + nTrees + "\n";
@@ -287,8 +285,7 @@ public class LambdaMART extends Ranker {
 		return output;
 	}
   @Override
-	public void loadFromString(String fullText)
-	{
+	public void loadFromString(String fullText) {
 		try {
 			String content;
 			StringBuilder model = new StringBuilder();

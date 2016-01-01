@@ -9,10 +9,7 @@
 
 package ciir.umass.edu.learning.neuralnet;
 
-import ciir.umass.edu.learning.DataPoint;
-import ciir.umass.edu.learning.RankerType;
-import ciir.umass.edu.learning.RankList;
-import ciir.umass.edu.learning.Ranker;
+import ciir.umass.edu.learning.*;
 import ciir.umass.edu.metric.MetricScorer;
 import ciir.umass.edu.utilities.RankLibError;
 import ciir.umass.edu.utilities.SimpleMath;

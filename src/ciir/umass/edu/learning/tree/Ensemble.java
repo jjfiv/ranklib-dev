@@ -30,30 +30,27 @@ public class Ensemble {
 	protected List<Float> weights = null;
 	protected int[] features = null;
 	
-	public Ensemble()
-	{
-		trees = new ArrayList<RegressionTree>();
-		weights = new ArrayList<Float>();
+	public Ensemble() {
+		trees = new ArrayList<>();
+		weights = new ArrayList<>();
 	}
-	public Ensemble(Ensemble e)
-	{
-		trees = new ArrayList<RegressionTree>();
-		weights = new ArrayList<Float>();
+	public Ensemble(Ensemble e) {
+		trees = new ArrayList<>();
+		weights = new ArrayList<>();
 		trees.addAll(e.trees);
 		weights.addAll(e.weights);
 	}
-	public Ensemble(String xmlRep)
-	{
+	public Ensemble(String xmlRep) {
 		try {
-			trees = new ArrayList<RegressionTree>();
-			weights = new ArrayList<Float>();
+			trees = new ArrayList<>();
+			weights = new ArrayList<>();
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			byte[] xmlDATA = xmlRep.getBytes();
 			ByteArrayInputStream in = new ByteArrayInputStream(xmlDATA);
 			Document doc = dBuilder.parse(in);
 			NodeList nl = doc.getElementsByTagName("tree");
-			HashMap<Integer, Integer> fids = new HashMap<Integer, Integer>();
+			HashMap<Integer, Integer> fids = new HashMap<>();
 			for(int i=0;i<nl.getLength();i++)
 			{
 				Node n = nl.item(i);//each node corresponds to a "tree" (tag)
@@ -69,15 +66,12 @@ public class Ensemble {
 			int i = 0;
 			for(Integer fid : fids.keySet())
 				features[i++] = fid;
-		}
-		catch(Exception ex)
-		{
+		} catch(Exception ex) {
 			throw RankLibError.create("Error in Emsemble(xmlRepresentation): ", ex);
 		}
 	}
 	
-	public void add(RegressionTree tree, float weight)
-	{
+	public void add(RegressionTree tree, float weight) {
 		trees.add(tree);
 		weights.add(weight);
 	}
@@ -89,14 +83,12 @@ public class Ensemble {
 	{
 		return weights.get(k);
 	}
-	public double variance()
-	{
+	public double variance() {
 		double var = 0;
 		for (RegressionTree tree : trees) var += tree.variance();
 		return var;
 	}
-	public void remove(int k)
-	{
+	public void remove(int k) {
 		trees.remove(k);
 		weights.remove(k);
 	}
@@ -104,21 +96,18 @@ public class Ensemble {
 	{
 		return trees.size();
 	}
-	public int leafCount()
-	{
+	public int leafCount() {
 		int count = 0;
 		for (RegressionTree tree : trees) count += tree.leaves().size();
 		return count;
 	}
-	public float eval(DataPoint dp)
-	{
+	public float eval(DataPoint dp) {
 		float s = 0;
 		for(int i=0;i<trees.size();i++)
 			s += trees.get(i).eval(dp) * weights.get(i);
 		return s;
 	}
-	public String toString()
-	{
+	public String toString() {
 		String strRep = "<ensemble>" + "\n";
 		for(int i=0;i<trees.size();i++)
 		{
@@ -139,25 +128,23 @@ public class Ensemble {
 	 * @param n
 	 * @return
 	 */
-	private Split create(Node n, HashMap<Integer, Integer> fids)
-	{
-		Split s = null;
-		if(n.getFirstChild().getNodeName().compareToIgnoreCase("feature") == 0)//this is a split
-		{
+	private Split create(Node n, HashMap<Integer, Integer> fids) {
+		//this is a split
+		if(n.getFirstChild().getNodeName().compareToIgnoreCase("feature") == 0) {
 			NodeList nl = n.getChildNodes();
 			int fid = Integer.parseInt(nl.item(0).getFirstChild().getNodeValue().trim());//<feature>
 			fids.put(fid, 0);
 			float threshold = Float.parseFloat(nl.item(1).getFirstChild().getNodeValue().trim());//<threshold>
-			s = new Split(fid, threshold, 0);
+			Split s = new Split(fid, threshold, 0);
 			s.setLeft(create(nl.item(2), fids));
 			s.setRight(create(nl.item(3), fids));
+			return s;
 		}
-		else//this is a stump
-		{
-			float output = Float.parseFloat(n.getFirstChild().getFirstChild().getNodeValue().trim());
-			s = new Split();
-			s.setOutput(output);
-		}
+
+		//this is a stump
+		float output = Float.parseFloat(n.getFirstChild().getFirstChild().getNodeValue().trim());
+		Split s = new Split();
+		s.setOutput(output);
 		return s;
 	}
 }

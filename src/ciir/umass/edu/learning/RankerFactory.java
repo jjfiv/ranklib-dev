@@ -31,32 +31,44 @@ import java.util.*;
  * This class implements the Ranker factory. All ranking algorithms implemented have to be recognized in this class. 
  */
 public class RankerFactory {
-	protected List<Ranker> rFactory = Arrays.asList(
-			new MART(),
-			new RankBoost(),
-			new RankNet(),
-			new AdaRank(),
-			new CoorAscent(),
-			new LambdaRank(),
-			new LambdaMART(),
-			new ListNet(),
-			new RFRanker(),
-			new LinearRegRank());
 
-	protected static TreeMap<String, RankerType> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	
+	// Prototypes: set config values on these to influence models that are generated to be trained/tested.
+	public MART mart = new MART();
+	public RankBoost rankBoost = new RankBoost();
+	public RankNet rankNet = new RankNet();
+	public AdaRank adaRank = new AdaRank();
+	public CoorAscent coorAscent = new CoorAscent();
+	public LambdaRank lambdaRank = new LambdaRank();
+	public LambdaMART lambdaMart = new LambdaMART();
+	public ListNet listNet = new ListNet();
+	public RFRanker rfRanker = new RFRanker();
+	public LinearRegRank linearRegRank = new LinearRegRank();
+
+	protected List<Ranker> rFactory = Arrays.asList(
+			mart,
+			rankBoost,
+			rankNet,
+			adaRank,
+			coorAscent,
+			lambdaRank,
+			lambdaMart,
+			listNet,
+			rfRanker,
+			linearRegRank);
+
+	protected TreeMap<String, RankerType> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
 	public RankerFactory() {
 		for (Ranker ranker : rFactory) {
-			String name = createRanker(ranker.rankerType()).name();
+			ranker.factory = this;
+			String name = ranker.name();
 			map.put(name, ranker.rankerType());
 		}
 	}
-	public Ranker createRanker(RankerType type)
-	{
-		return rFactory.get(type.ordinal() - RankerType.MART.ordinal()).createNew();
+	public Ranker createRanker(RankerType type) {
+		return rFactory.get(type.ordinal() - RankerType.MART.ordinal()).createNew().setFactory(this);
 	}
-	public Ranker createRanker(RankerType type, List<RankList> samples, int[] features, MetricScorer scorer)
-	{
+	public Ranker createRanker(RankerType type, List<RankList> samples, int[] features, MetricScorer scorer) {
 		Ranker r = createRanker(type);
 		r.setTrainingSet(samples);
 		r.setFeatures(features);
@@ -114,7 +126,7 @@ public class RankerFactory {
 		for (Ranker ranker : rFactory) {
 			RankerType x = ranker.rankerType();
 			if(x.getRankerId() == rt) {
-				return ranker.createNew();
+				return ranker.createNew().setFactory(this);
 			}
 		}
 		throw RankLibError.create("Ranker="+rt + " cannot be created.");

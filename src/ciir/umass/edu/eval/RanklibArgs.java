@@ -1,13 +1,15 @@
 package ciir.umass.edu.eval;
 
 import ciir.umass.edu.features.*;
-import ciir.umass.edu.learning.*;
+import ciir.umass.edu.learning.CoorAscent;
+import ciir.umass.edu.learning.LinearRegRank;
+import ciir.umass.edu.learning.RankerFactory;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.boosting.AdaRank;
 import ciir.umass.edu.learning.boosting.RankBoost;
 import ciir.umass.edu.learning.neuralnet.ListNet;
 import ciir.umass.edu.learning.neuralnet.Neuron;
 import ciir.umass.edu.learning.neuralnet.RankNet;
-import ciir.umass.edu.learning.tree.LambdaMART;
 import ciir.umass.edu.learning.tree.RFRanker;
 import ciir.umass.edu.metric.ERRScorer;
 import ciir.umass.edu.metric.MetricScorer;
@@ -47,6 +49,7 @@ public class RanklibArgs {
   boolean useSparseRepresentation = false;
   Normalizer nml = new NoopNormalizer();
   String modelFile = "";
+
 
   int nThread = -1; // nThread = #cpu-cores
   //for my personal use
@@ -155,12 +158,12 @@ public class RanklibArgs {
 
     out.println("");
     out.println("    [-] {MART, LambdaMART}-specific parameters");
-    out.println("\t[ -tree <t> ]\t\tNumber of trees (default=" + LambdaMART.nTrees + ")");
-    out.println("\t[ -leaf <l> ]\t\tNumber of leaves for each tree (default=" + LambdaMART.nTreeLeaves + ")");
-    out.println("\t[ -shrinkage <factor> ]\tShrinkage, or learning rate (default=" + LambdaMART.learningRate + ")");
-    out.println("\t[ -tc <k> ]\t\tNumber of threshold candidates for tree spliting. -1 to use all feature values (default=" + LambdaMART.nThreshold + ")");
-    out.println("\t[ -mls <n> ]\t\tMin leaf support -- minimum % of docs each leaf has to contain (default=" + LambdaMART.minLeafSupport + ")");
-    out.println("\t[ -estop <e> ]\t\tStop early when no improvement is observed on validaton data in e consecutive rounds (default=" + LambdaMART.nRoundToStopEarly + ")");
+    out.println("\t[ -tree <t> ]\t\tNumber of trees (default=" + factory.lambdaMart.nTrees + ")");
+    out.println("\t[ -leaf <l> ]\t\tNumber of leaves for each tree (default=" + factory.lambdaMart.nTreeLeaves + ")");
+    out.println("\t[ -shrinkage <factor> ]\tShrinkage, or learning rate (default=" + factory.lambdaMart.learningRate + ")");
+    out.println("\t[ -tc <k> ]\t\tNumber of threshold candidates for tree spliting. -1 to use all feature values (default=" + factory.lambdaMart.nThreshold + ")");
+    out.println("\t[ -mls <n> ]\t\tMin leaf support -- minimum % of docs each leaf has to contain (default=" + factory.lambdaMart.minLeafSupport + ")");
+    out.println("\t[ -estop <e> ]\t\tStop early when no improvement is observed on validaton data in e consecutive rounds (default=" + factory.lambdaMart.nRoundToStopEarly + ")");
 
     out.println("");
     out.println("    [-] ListNet-specific parameters");
@@ -291,7 +294,7 @@ public class RanklibArgs {
       else if(args[i].compareTo("-tc")==0)
       {
         RankBoost.nThreshold = Integer.parseInt(args[++i]);
-        LambdaMART.nThreshold = Integer.parseInt(args[i]);
+        factory.lambdaMart.nThreshold = Integer.parseInt(args[i]);
       }
 
       //AdaRank
@@ -326,26 +329,33 @@ public class RanklibArgs {
       //MART / LambdaMART / Random forest
       else if(args[i].compareTo("-tree")==0)
       {
-        LambdaMART.nTrees = Integer.parseInt(args[++i]);
-        RFRanker.nTrees = Integer.parseInt(args[i]);
+        int nTrees = Integer.parseInt(args[++i]);
+        factory.lambdaMart.nTrees = nTrees;
+        factory.mart.nTrees = nTrees;
+        RFRanker.nTrees = nTrees;
       }
       else if(args[i].compareTo("-leaf")==0)
       {
-        LambdaMART.nTreeLeaves = Integer.parseInt(args[++i]);
+        factory.lambdaMart.nTreeLeaves = Integer.parseInt(args[++i]);
+        factory.mart.nTreeLeaves = factory.lambdaMart.nTreeLeaves;
         RFRanker.nTreeLeaves = Integer.parseInt(args[i]);
       }
       else if(args[i].compareTo("-shrinkage")==0)
       {
-        LambdaMART.learningRate = Float.parseFloat(args[++i]);
+        factory.lambdaMart.learningRate = Float.parseFloat(args[++i]);
+        factory.mart.learningRate = factory.lambdaMart.learningRate;
         RFRanker.learningRate = Float.parseFloat(args[i]);
       }
       else if(args[i].compareTo("-mls")==0)
       {
-        LambdaMART.minLeafSupport = Integer.parseInt(args[++i]);
-        RFRanker.minLeafSupport = LambdaMART.minLeafSupport;
+        factory.lambdaMart.minLeafSupport = Integer.parseInt(args[++i]);
+        factory.mart.minLeafSupport = factory.lambdaMart.minLeafSupport;
+        RFRanker.minLeafSupport = factory.lambdaMart.minLeafSupport;
       }
-      else if(args[i].compareTo("-estop")==0)
-        LambdaMART.nRoundToStopEarly = Integer.parseInt(args[++i]);
+      else if(args[i].compareTo("-estop")==0) {
+        factory.lambdaMart.nRoundToStopEarly = Integer.parseInt(args[++i]);
+        factory.mart.nRoundToStopEarly = factory.lambdaMart.nRoundToStopEarly;
+      }
         //Random forest
       else if(args[i].compareTo("-bag")==0)
         RFRanker.nBag = Integer.parseInt(args[++i]);

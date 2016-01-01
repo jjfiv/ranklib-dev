@@ -24,8 +24,7 @@ public class RankerTrainer {
 	protected RankerFactory rf = new RankerFactory();
 	protected double trainingTime = 0;
 	
-	public Ranker train(RankerType type, List<RankList> train, int[] features, MetricScorer scorer)
-	{
+	public Ranker train(RankerType type, List<RankList> train, int[] features, MetricScorer scorer) {
 		Ranker ranker = rf.createRanker(type, train, features, scorer);
 		long start = System.nanoTime();
 		ranker.init();
@@ -46,8 +45,7 @@ public class RankerTrainer {
 		//printTrainingTime();
 		return ranker;
 	}
-	public Ranker train(RankerType type, List<RankList> train, List<RankList> validation, int[] features, MetricScorer scorer)
-	{
+	public Ranker train(RankerType type, List<RankList> train, List<RankList> validation, int[] features, MetricScorer scorer) {
 		Ranker ranker = rf.createRanker(type, train, features, scorer);
 		ranker.setValidationSet(validation);
 		long start = System.nanoTime();
@@ -61,8 +59,7 @@ public class RankerTrainer {
 	{
 		return trainingTime;
 	}
-	public void printTrainingTime()
-	{
+	public void printTrainingTime() {
 		System.out.println("Training time: " + SimpleMath.round((trainingTime)/1e9, 2) + " seconds");			
 	}
 }

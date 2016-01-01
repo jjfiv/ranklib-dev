@@ -10,7 +10,6 @@
 package ciir.umass.edu.learning.tree;
 
 import ciir.umass.edu.learning.*;
-import ciir.umass.edu.metric.MetricScorer;
 import ciir.umass.edu.utilities.RankLibError;
 import ciir.umass.edu.utilities.SimpleMath;
 
@@ -37,32 +36,27 @@ public class RFRanker extends Ranker {
 	//Variables
 	protected Ensemble[] ensembles = null;//bag of ensembles, each can be a single tree or an ensemble of gradient boosted trees
 	
-	public RFRanker()
-	{		
-	}
-	public RFRanker(List<RankList> samples, int[] features, MetricScorer scorer)
-	{
-		super(samples, features, scorer);
-	}
+	public RFRanker() {}
 
 	public void init()
 	{
 		PRINT("Initializing... ");
 		ensembles = new Ensemble[nBag];
 		//initialize parameters for the tree(s) built in each bag
-		LambdaMART.nTrees = nTrees;
-		LambdaMART.nTreeLeaves = nTreeLeaves;
-		LambdaMART.learningRate = learningRate;
-		LambdaMART.nThreshold = nThreshold;
-		LambdaMART.minLeafSupport = minLeafSupport;
-		LambdaMART.nRoundToStopEarly = -1;//no early-stopping since we're doing bagging
+		this.factory = new RankerFactory();
+		factory.lambdaMart.nTrees = nTrees;
+		factory.lambdaMart.nTreeLeaves = nTreeLeaves;
+		factory.lambdaMart.learningRate = learningRate;
+		factory.lambdaMart.nThreshold = nThreshold;
+		factory.lambdaMart.minLeafSupport = minLeafSupport;
+		factory.lambdaMart.nRoundToStopEarly = -1;//no early-stopping since we're doing bagging
 		//turn on feature sampling
 		FeatureHistogram.samplingRate = featureSamplingRate;
 		PRINTLN("[Done]");
 	}
 	public void learn()
 	{
-		RankerFactory rf = new RankerFactory();
+		RankerFactory rf = this.factory;
 		PRINTLN("------------------------------------");
 		PRINTLN("Training starts...");
 		PRINTLN("------------------------------------");
@@ -103,8 +97,7 @@ public class RFRanker extends Ranker {
 	public double eval(DataPoint dp)
 	{
 		double s = 0;
-		for(int i=0;i<ensembles.length;i++)
-			s += ensembles[i].eval(dp);
+		for (Ensemble ensemble : ensembles) s += ensemble.eval(dp);
 		return s/ensembles.length;
 	}
 	public Ranker createNew()
@@ -136,10 +129,10 @@ public class RFRanker extends Ranker {
 	public void loadFromString(String fullText)
 	{
 		try {
-			String content = "";
+			String content;
 			String model = "";
 			BufferedReader in = new BufferedReader(new StringReader(fullText));
-			List<Ensemble> ens = new ArrayList<Ensemble>();
+			List<Ensemble> ens = new ArrayList<>();
 			while((content = in.readLine()) != null)
 			{
 				content = content.trim();
@@ -149,37 +142,34 @@ public class RFRanker extends Ranker {
 					continue;
 				//actual model component
 				model += content;
-				if(content.indexOf("</ensemble>") != -1)
-				{
+				if(content.contains("</ensemble>")) {
 					//load the ensemble
 					ens.add(new Ensemble(model));
 					model = "";
 				}				
 			}
 			in.close();
-			HashSet<Integer> uniqueFeatures = new HashSet<Integer>();
+			HashSet<Integer> uniqueFeatures = new HashSet<>();
 			ensembles = new Ensemble[ens.size()];
-			for(int i=0;i<ens.size();i++)
-			{
+			for(int i=0;i<ens.size();i++) {
 				ensembles[i] = ens.get(i);
 				//obtain used features
 				int[] fids = ens.get(i).getFeatures();
-				for(int f=0;f<fids.length;f++)
-					if(!uniqueFeatures.contains(fids[f]))
-						uniqueFeatures.add(fids[f]);
+				for (int fid : fids)
+					if (!uniqueFeatures.contains(fid))
+						uniqueFeatures.add(fid);
 			}
 			int fi = 0;
 			features = new int[uniqueFeatures.size()];
-			for(Integer f : uniqueFeatures)
-				features[fi++] = f.intValue();
+			for(int f : uniqueFeatures)
+				features[fi++] = f;
 		}
 		catch(Exception ex)
 		{
 			throw RankLibError.create("Error in RFRanker::load(): ", ex);
 		}
 	}
-	public void printParameters()
-	{
+	public void printParameters() {
 		PRINTLN("No. of bags: " + nBag);
 		PRINTLN("Sub-sampling: " + subSamplingRate);
 		PRINTLN("Feature-sampling: " + featureSamplingRate);
@@ -194,13 +184,11 @@ public class RFRanker extends Ranker {
 		return RankerType.RANDOM_FOREST;
 	}
 
-	public String name()
-	{
+	public String name() {
 		return "Random Forests";
 	}
 	
-	public Ensemble[] getEnsembles()
-	{
+	public Ensemble[] getEnsembles() {
 		return ensembles;
 	}
 }

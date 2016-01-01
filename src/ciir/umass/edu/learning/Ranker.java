@@ -36,6 +36,7 @@ import java.util.Set;
  */
 public abstract class Ranker {
 	public static boolean verbose = true;
+	public RankerFactory factory = null;
 
 	protected List<RankList> samples = new ArrayList<>();//training samples
 	protected int[] features = null;
@@ -185,4 +186,9 @@ public abstract class Ranker {
 	public abstract String name();
 	public abstract void printParameters();
 	public abstract RankerType rankerType();
+
+	public Ranker setFactory(RankerFactory rankerFactory) {
+		this.factory = rankerFactory;
+		return this;
+	}
 }
