@@ -20,8 +20,6 @@ public class Analyzer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 		String directory = "";
 		String baseline = "";
 		if(args.length < 2)
@@ -119,8 +117,7 @@ public class Analyzer {
 	 */
 	public void compare(String directory, String baseFile)
 	{
-		directory = FileUtils.makePathStandard(directory);
-		List<String> targets = FileUtils.getAllFiles2(directory);//ONLY filenames are stored 
+		List<String> targets = FileUtils.getAllFiles2(directory);//ONLY filenames are stored
 		for(int i=0;i<targets.size();i++)
 		{
 			if(targets.get(i).compareTo(baseFile) == 0)

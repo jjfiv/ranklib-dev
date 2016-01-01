@@ -385,7 +385,8 @@ public class Evaluator {
 			
 			if(modelDir.compareTo("") != 0)
 			{
-				ranker.save(FileUtils.makePathStandard(modelDir) + "f" + (i+1) + "." + modelFile);
+				File destFile = new File(modelDir, String.format("f%d."+modelFile, i+1));
+				ranker.save(destFile.getAbsolutePath());
 				out.println("Fold-" + (i+1) + " model saved to: " + modelFile);
 			}
 		}
