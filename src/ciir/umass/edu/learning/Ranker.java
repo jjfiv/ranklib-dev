@@ -21,10 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -40,32 +37,41 @@ import java.util.Set;
 public abstract class Ranker {
 	public static boolean verbose = true;
 
-	protected List<RankList> samples = new ArrayList<RankList>();//training samples
+	protected List<RankList> samples = new ArrayList<>();//training samples
 	protected int[] features = null;
 	protected MetricScorer scorer = null;
 	protected double scoreOnTrainingData = 0.0;
 	protected double bestScoreOnValidationData = 0.0;
+	protected Dataset dataset;
 	
 	protected List<RankList> validationSamples = null;
 	PrintStream out = System.out;
-	
-	protected Ranker()
-	{
 
+	public int getFeatureCount() {
+		if(this.dataset != null) {
+			return dataset.getFeatureCount();
+		}
+
+		// calculate if we don't have a reference to the whole dataset:
+		int featureCount = 0;
+		for (RankList sample : this.samples) {
+			featureCount = Math.max(featureCount, sample.getFeatureCount());
+		}
+		return featureCount;
 	}
-	protected Ranker(List<RankList> samples, int[] features, MetricScorer scorer)
-	{
+
+	protected Ranker() { }
+	protected Ranker(List<RankList> samples, int[] features, MetricScorer scorer) {
 		this.samples = samples;
 		this.features = features;
 		this.scorer = scorer;
 	}
 	
 	//Utility functions
-	public void setTrainingSet(List<RankList> samples)
-	{
+	public void setTrainingSet(List<RankList> samples) {
 		this.samples = samples;
-	
 	}
+
 	public void setFeatures(int[] features)
 	{
 		this.features = features;	
@@ -102,85 +108,66 @@ public abstract class Ranker {
 		return new RankList(rl, idx);
 	}
 
-	public List<RankList> rank(List<RankList> l)
-	{
+	public List<RankList> rank(List<RankList> l) {
 		List<RankList> ll = new ArrayList<RankList>();
-		for(int i=0;i<l.size();i++)
-			ll.add(rank(l.get(i)));
+		for (RankList aL : l) ll.add(rank(aL));
 		return ll;
 	}
 
         //- Create the model file directory to write models into if not already there
-	public void save(String modelFile) 
-	{
-              // Determine if the directory to write to exists.  If not, create it.
-              Path parentPath = Paths.get(modelFile).toAbsolutePath().getParent();
-            
-              // Create the directory if it doesn't exist. Give it 755 perms
-                if (Files.notExists (parentPath)) {
-                     try {
-                          Set<PosixFilePermission> perms = PosixFilePermissions.fromString ("rwxr-xr-x");
-                          FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute (perms);
-                          Path outputDir = Files.createDirectory (parentPath, attr);
-                     }
-                     catch (Exception e) {
-                          System.out.println ("Error creating kcv model file directory " + modelFile);
-		     }         
-                }
-            
+	public void save(String modelFile) {
+		// Determine if the directory to write to exists.  If not, create it.
+		Path parentPath = Paths.get(modelFile).toAbsolutePath().getParent();
+
+		// Create the directory if it doesn't exist. Give it 755 perms
+		if (Files.notExists (parentPath)) {
+			try {
+				Set<PosixFilePermission> perms = PosixFilePermissions.fromString ("rwxr-xr-x");
+				FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute (perms);
+				Path outputDir = Files.createDirectory (parentPath, attr);
+			}
+			catch (Exception e) {
+				out.println ("Error creating kcv model file directory " + modelFile);
+			}
+		}
+
 		FileUtils.write(modelFile, "ASCII", model());
 	}
-	
-	protected void PRINT(String msg)
-	{
+
+	protected void PRINT(String msg) {
 		if(verbose)
-			System.out.print(msg);
+			out.print(msg);
 	}
 
-	protected void PRINTLN(String msg)
-	{
+	protected void PRINTLN(String msg) {
 		if(verbose)
-			System.out.println(msg);
+			out.println(msg);
 	}
 
 	protected void PRINT(int[] len, String[] msgs)
 	{
-		if(verbose)
-		{
-			for(int i=0;i<msgs.length;i++)
-			{
+		if(verbose) {
+			for(int i=0;i<msgs.length;i++) {
 				String msg = msgs[i];
 				if(msg.length() > len[i])
 					msg = msg.substring(0, len[i]);
 				else
 					while(msg.length() < len[i])
 						msg += " ";
-				System.out.print(msg + " | ");
+				out.print(msg + " | ");
 			}
 		}
 	}
-	protected void PRINTLN(int[] len, String[] msgs)
-	{
+	protected void PRINTLN(int[] len, String[] msgs) {
 		PRINT(len, msgs);
 		PRINTLN("");
 	}
-	protected void PRINTTIME()
-	{
-		DateFormat dateFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
-		Date date = new Date();
-		System.out.println(dateFormat.format(date));
-	}
-	protected void PRINT_MEMORY_USAGE()
-	{
-		System.out.println("***** " + Runtime.getRuntime().freeMemory() + " / " + Runtime.getRuntime().maxMemory());
-	}
-	
-	protected void copy(double[] source, double[] target)
-	{
+
+	protected void copy(double[] source, double[] target) {
 		for(int j=0;j<source.length;j++)
 			target[j] = source[j];
 	}
-	
+
 	/**
 	 * HAVE TO BE OVER-RIDDEN IN SUB-CLASSES
 	 */
@@ -191,11 +178,11 @@ public abstract class Ranker {
 		return -1.0;
 	}
 
-  public abstract Ranker createNew();
-  public abstract String toString();
-  public abstract String model();
-  public abstract void loadFromString(String fullText);
-  public abstract String name();
-  public abstract void printParameters();
+	public abstract Ranker createNew();
+	public abstract String toString();
+	public abstract String model();
+	public abstract void loadFromString(String fullText);
+	public abstract String name();
+	public abstract void printParameters();
 	public abstract RankerType rankerType();
 }

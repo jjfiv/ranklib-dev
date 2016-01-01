@@ -23,26 +23,22 @@ public class RankList extends AbstractList<DataPoint> {
 
 	protected DataPoint[] rl = null;
 	
-	public RankList(List<DataPoint> rl)
-	{
+	public RankList(List<DataPoint> rl) {
 		this.rl = new DataPoint[rl.size()];
 		for(int i=0;i<rl.size();i++)
 			this.rl[i] = rl.get(i);
 	}
-	public RankList(RankList rl)
-	{
+	public RankList(RankList rl) {
 		this.rl = new DataPoint[rl.size()];
 		for(int i=0;i<rl.size();i++)
 			this.rl[i] = rl.get(i);
 	}
-	public RankList(RankList rl, int[] idx)
-	{
+	public RankList(RankList rl, int[] idx) {
 		this.rl = new DataPoint[rl.size()];
 		for(int i=0;i<idx.length;i++)
 			this.rl[i] = rl.get(idx[i]);
 	}
-	public RankList(RankList rl, int[] idx, int offset)
-	{
+	public RankList(RankList rl, int[] idx, int offset) {
 		this.rl = new DataPoint[rl.size()];
 		for(int i=0;i<idx.length;i++)
 			this.rl[i] = rl.get(idx[i]-offset);
@@ -64,8 +60,7 @@ public class RankList extends AbstractList<DataPoint> {
 		rl[k] = p;
 		return prev;
 	}
-	public RankList getCorrectRanking()
-	{
+	public RankList getCorrectRanking() {
 		double[] score = new double[rl.length];
 		for(int i=0;i<rl.length;i++)
 			score[i] = rl[i].getLabel();
@@ -73,12 +68,19 @@ public class RankList extends AbstractList<DataPoint> {
 		return new RankList(this, idx);
 	}
 	
-	public RankList getRanking(short fid)
-	{
+	public RankList getRanking(short fid) {
 		double[] score = new double[rl.length];
 		for(int i=0;i<rl.length;i++)
 			score[i] = rl[i].getFeatureValue(fid);
 		int[] idx = Sorter.sort(score, false);
 		return new RankList(this, idx);
+	}
+
+	public int getFeatureCount() {
+		int fc = 0;
+		for (DataPoint dataPoint : rl) {
+			fc = Math.max(fc, dataPoint.getKnownFeatures());
+		}
+		return fc;
 	}
 }

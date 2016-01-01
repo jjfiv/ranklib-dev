@@ -37,8 +37,8 @@ public class LinearRegRank extends Ranker {
 	{
 		PRINTLN("Initializing... [Done]");
 	}
-	public void learn()
-	{
+
+	public void learn() {
 		PRINTLN("--------------------------------");
 		PRINTLN("Training starts...");
 		PRINTLN("--------------------------------");
@@ -49,8 +49,8 @@ public class LinearRegRank extends Ranker {
 		/*int nSample = 0;
 		for(int i=0;i<samples.size();i++)
 			nSample += samples.get(i).size();*/
-		int nVar = DataPoint.getFeatureCount();
-		
+		int nVar = getFeatureCount(); // # features
+
 		double[][] xTx = new double[nVar][];
 		for(int i=0;i<nVar;i++)
 		{
@@ -59,25 +59,20 @@ public class LinearRegRank extends Ranker {
 		}
 		double[] xTy = new double[nVar];
 		Arrays.fill(xTy, 0.0);
-		
-		for(int s=0;s<samples.size();s++)
-		{
-			RankList rl = samples.get(s);
-			for(int i=0;i<rl.size();i++)
-			{
-				xTy[nVar-1] += rl.get(i).getLabel();
-				for(int j=0;j<nVar-1;j++)
-				{
-					xTy[j] += rl.get(i).getFeatureValue(j+1) * rl.get(i).getLabel();
-					for(int k=0;k<nVar;k++)
-					{
-						double t = (k < nVar-1) ? rl.get(i).getFeatureValue(k+1) : 1f;
-						xTx[j][k] += rl.get(i).getFeatureValue(j+1) * t;
+
+		for (RankList rl : samples) {
+			for (DataPoint pt : rl) {
+				xTy[nVar - 1] += pt.getLabel();
+				for (int j = 0; j < nVar - 1; j++) {
+					xTy[j] += pt.getFeatureValue(j + 1) * pt.getLabel();
+					for (int k = 0; k < nVar; k++) {
+						double t = (k < nVar - 1) ? pt.getFeatureValue(k + 1) : 1f;
+						xTx[j][k] += pt.getFeatureValue(j + 1) * t;
 					}
 				}
-				for(int k=0;k<nVar-1;k++)
-					xTx[nVar-1][k] += rl.get(i).getFeatureValue(k+1);
-				xTx[nVar-1][nVar-1] += 1f;
+				for (int k = 0; k < nVar - 1; k++)
+					xTx[nVar - 1][k] += pt.getFeatureValue(k + 1);
+				xTx[nVar - 1][nVar - 1] += 1f;
 			}
 		}
 		if(lambda != 0.0)//regularized
@@ -111,23 +106,20 @@ public class LinearRegRank extends Ranker {
 	{
 		return new LinearRegRank();
 	}
-	public String toString()
-	{
+	public String toString() {
 		String output = "0:" + weight[0] + " ";		
 		for(int i=0;i<features.length;i++)
 			output += features[i] + ":" + weight[i] + ((i==weight.length-1)?"":" ");
 		return output;
 	}
-	public String model()
-	{
+	public String model() {
 		String output = "## " + name() + "\n";
 		output += "## Lambda = " + lambda + "\n";
 		output += toString();
 		return output;
 	}
   @Override
-	public void loadFromString(String fullText)
-	{
+	public void loadFromString(String fullText) {
 		try {
 			String content = "";
 			BufferedReader in = new BufferedReader(new StringReader(fullText));
@@ -254,4 +246,5 @@ public class LinearRegRank extends Ranker {
 		
 		return x;
 	}
+
 }

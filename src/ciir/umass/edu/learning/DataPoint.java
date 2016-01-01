@@ -18,11 +18,11 @@ import ciir.umass.edu.features.LibSVMFormat;
  * It should be general enough for other ranking applications as well (not limited to just IR I hope). 
  */
 public abstract class DataPoint {
-
-	protected static int featureCount = 0;
-	
 	protected static float UNKNOWN = Float.NaN;
-	
+	protected static boolean isUnknown(float fVal) {
+		return Float.isNaN(fVal);
+	}
+
 	//attributes
 	protected float label = 0.0f;//[ground truth] the real label of the data point (e.g. its degree of relevance according to the relevance judgment)
 	protected String id = "";//id of this data point (e.g. query-id)
@@ -34,11 +34,6 @@ public abstract class DataPoint {
 	
 	//internal to learning procedures
 	protected double cached = -1.0;//the latest evaluation score of the learned model on this data point
-
-	protected static boolean isUnknown(float fVal)
-	{
-		return Float.isNaN(fVal);
-	}
 
 	/**
 	* Get the value of the feature with the given feature ID
@@ -127,11 +122,6 @@ public abstract class DataPoint {
 		output += " " + description;
 		return output;
 	}
-	
-	public static int getFeatureCount()
-	{
-		return featureCount;
-	}
 
 	public int getIntLabel() {
 		return getLabel() > 0.0f ? 1 : 0;
@@ -139,5 +129,9 @@ public abstract class DataPoint {
 
 	public void setKnownFeatures(int knownFeatures) {
 		this.knownFeatures = knownFeatures;
+	}
+
+	public int getKnownFeatures() {
+		return knownFeatures;
 	}
 }

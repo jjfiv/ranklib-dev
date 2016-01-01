@@ -97,6 +97,6 @@ public class PointBuilder {
     pt.setDescription(description);
     pt.setLabel(label);
     pt.setFeatureVector(getRawFeatures());
-    pt.setKnownFeatures(knownFeatures.size());
+    pt.setKnownFeatures(knownFeatures.cardinality());
   }
 }
