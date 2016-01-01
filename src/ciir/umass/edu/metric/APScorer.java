@@ -37,8 +37,7 @@ public class APScorer extends MetricScorer {
 	{
 		return new APScorer();
 	}
-	public void loadExternalRelevanceJudgment(String qrelFile)
-	{
+	public void loadExternalRelevanceJudgment(String qrelFile) {
 		relDocCount = new HashMap<>();
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(qrelFile)))) {
 			String content = "";
