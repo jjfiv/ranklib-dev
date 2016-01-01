@@ -15,25 +15,18 @@ package ciir.umass.edu.utilities;
 public class SimpleMath {
 	
 	private static double LOG2 = Math.log(2);
-	private static double LOG10 = Math.log(10);
 	private static double LOGE = Math.log(Math.E);
 	
 	public static double logBase2(double value)
 	{
 		return Math.log(value)/LOG2;
 	}
-	public static double logBase10(double value)
-	{
-		return Math.log(value)/LOG10;
-	}
+
 	public static double ln(double value)
 	{
 		return Math.log(value)/LOGE;
 	}
-	public static int min(int a, int b)
-	{
-		return (a>b)?b:a;
-	}
+
 	public static double p(long count, long total)
 	{
 		return ((double)count+0.5)/(total+1);

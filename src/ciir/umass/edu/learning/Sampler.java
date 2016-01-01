@@ -20,10 +20,9 @@ public class Sampler {
 	public List<RankList> doSampling(List<RankList> samplingPool, float samplingRate, boolean withReplacement)
 	{
 		Random r = new Random();
-		samples = new ArrayList<RankList>();
+		samples = new ArrayList<>();
 		int size = (int)(samplingRate * samplingPool.size());
-		if(withReplacement)
-		{
+		if(withReplacement) {
 			int[] used = new int[samplingPool.size()];
 			Arrays.fill(used, 0);
 			for(int i=0;i<size;i++)
@@ -32,14 +31,12 @@ public class Sampler {
 				samples.add(samplingPool.get(selected));			
 				used[selected] = 1;
 			}
-			remains = new ArrayList<RankList>();
+			remains = new ArrayList<>();
 			for(int i=0;i<samplingPool.size();i++)
 				if(used[i] == 0)
 					remains.add(samplingPool.get(i));
-		}
-		else
-		{
-			List<Integer> l = new ArrayList<Integer>();
+		} else {
+			List<Integer> l = new ArrayList<>();
 			for(int i=0;i<samplingPool.size();i++)
 				l.add(i);
 			for(int i=0;i<size;i++)
@@ -48,9 +45,8 @@ public class Sampler {
 				samples.add(samplingPool.get(l.get(selected)));
 				l.remove(selected);
 			}
-			remains = new ArrayList<RankList>();
-			for(int i=0;i<l.size();i++)
-				remains.add(samplingPool.get(l.get(i)));
+			remains = new ArrayList<>();
+			for (int idx : l) remains.add(samplingPool.get(idx));
 		}
 		return samples;
 	}

@@ -10,6 +10,7 @@
 package ciir.umass.edu.learning.boosting;
 
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
@@ -437,6 +438,12 @@ public class RankBoost extends Ranker {
 		PRINTLN("No. of rounds: " + nIteration);
 		PRINTLN("No. of threshold candidates: " + nThreshold);
 	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.RANKBOOST;
+	}
+
 	public String name()
 	{
 		return "RankBoost";

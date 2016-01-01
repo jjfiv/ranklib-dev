@@ -252,6 +252,7 @@ public class CoorAscent extends Ranker {
 	}
 	public String model()
 	{
+		assert(weight != null);
 		String output = "## " + name() + "\n";
 		output += "## Restart = " + nRestart + "\n";
 		output += "## MaxIteration = " + nMaxIteration + "\n";
@@ -308,6 +309,12 @@ public class CoorAscent extends Ranker {
 		else
 			PRINTLN("Regularization: No");
 	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.COOR_ASCENT;
+	}
+
 	public String name()
 	{
 		return "Coordinate Ascent";

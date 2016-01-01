@@ -9,6 +9,25 @@
 
 package ciir.umass.edu.learning;
 
-public enum RANKER_TYPE {
-	MART, RANKBOOST, RANKNET, ADARANK, COOR_ASCENT, LAMBDARANK, LAMBDAMART, LISTNET, RANDOM_FOREST, LINEAR_REGRESSION
+public enum RankerType {
+	MART(0),
+	RANKBOOST(1),
+	RANKNET(2),
+	ADARANK(3),
+	COOR_ASCENT(4),
+	LAMBDARANK(5),
+	LAMBDAMART(6),
+	LISTNET(7),
+	RANDOM_FOREST(8),
+	LINEAR_REGRESSION(9);
+
+	/** RankLib ranker number, needs to be steady don't want to keep using ordinal because that could change if we insert in the middle. */
+	int cliNumber;
+	RankerType(int cliNumber) {
+		this.cliNumber = cliNumber;
+	}
+
+	public int getRankerId() {
+		return cliNumber;
+	}
 }

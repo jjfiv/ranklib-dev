@@ -9,10 +9,7 @@
 
 package ciir.umass.edu.features;
 
-import ciir.umass.edu.learning.DataPoint;
-import ciir.umass.edu.learning.DenseDataPoint;
-import ciir.umass.edu.learning.RankList;
-import ciir.umass.edu.learning.SparseDataPoint;
+import ciir.umass.edu.learning.*;
 import ciir.umass.edu.utilities.FileUtils;
 import ciir.umass.edu.utilities.RankLibError;
 
@@ -73,7 +70,8 @@ public class FeatureManager {
 	
 		if(shuffle || nFold > 0)
 		{
-			List<RankList> samples = readInput(rankingFiles);
+			Dataset dataset = readInput(rankingFiles);
+			List<RankList> samples = dataset.samples;
 			if(samples.size() == 0)
 			{
 				System.out.println("Error: The input file is empty.");
@@ -124,10 +122,20 @@ public class FeatureManager {
 	 * @param inputFile
 	 * @return
 	 */
-	public static List<RankList> readInput(String inputFile)
+	public static Dataset readInput(String inputFile)
 	{
 		return readInput(inputFile, false, false);
 	}
+
+	public static Dataset readInput(String inputFile, boolean mustHaveRelDoc, boolean useSparseRepresentation) {
+		Dataset dataset = new Dataset();
+		try {
+			return readInput(dataset, inputFile, mustHaveRelDoc, useSparseRepresentation);
+		} catch (RankLibError rle) {
+			throw new RuntimeException("Error parsing inputFile: '"+inputFile+"'",rle);
+		}
+	}
+
 	/**
 	 * Read a set of rankings from a single file.
 	 * @param inputFile
@@ -135,9 +143,10 @@ public class FeatureManager {
 	 * @param useSparseRepresentation
 	 * @return
 	 */
-	public static List<RankList> readInput(String inputFile, boolean mustHaveRelDoc, boolean useSparseRepresentation)	
+	public static Dataset readInput(Dataset dataset, String inputFile, boolean mustHaveRelDoc, boolean useSparseRepresentation)
 	{
-		List<RankList> samples = new ArrayList<>();
+		dataset.inputFiles.add(inputFile);
+
 		int countRL = 0;
 		int countEntries = 0;
 		try {
@@ -157,53 +166,51 @@ public class FeatureManager {
 				
 				if(countEntries % 10000 == 0)
 					System.out.print("\rReading feature file [" + inputFile + "]: " + countRL + "... ");
-				
-				DataPoint qp = null;
-				if(useSparseRepresentation)
-					qp = new SparseDataPoint(content);
-				else
-					qp = new DenseDataPoint(content);
 
-				if(lastID.compareTo("")!=0 && lastID.compareTo(qp.getID())!=0)
-				{
-					if(!mustHaveRelDoc || hasRel)
-						samples.add(new RankList(rl));
-					rl = new ArrayList<>();
-					hasRel = false;
+				try {
+					PointBuilder pb = LibSVMFormat.parsePoint(content, dataset);
+					DataPoint qp = useSparseRepresentation ? pb.toSparsePoint() : pb.toDensePoint();
+
+					if(lastID.compareTo("")!=0 && lastID.compareTo(qp.getID())!=0)
+					{
+						if(!mustHaveRelDoc || hasRel)
+							dataset.samples.add(new RankList(rl));
+						rl = new ArrayList<>();
+						hasRel = false;
+					}
+
+					if(qp.getLabel() > 0)
+						hasRel = true;
+					lastID = qp.getID();
+					rl.add(qp);
+					countEntries++;
+				} catch (Throwable err) {
+					throw new RankLibError(content, err);
 				}
-				
-				if(qp.getLabel() > 0)
-					hasRel = true;
-				lastID = qp.getID();
-				rl.add(qp);
-				countEntries++;
 			}
 			if(rl.size() > 0 && (!mustHaveRelDoc || hasRel))
-				samples.add(new RankList(rl));
+				dataset.samples.add(new RankList(rl));
 			in.close();
 			System.out.println("\rReading feature file [" + inputFile + "]... [Done.]            ");
-			System.out.println("(" + samples.size() + " ranked lists, " + countEntries + " entries read)");
+			System.out.println("(" + dataset.samples.size() + " ranked lists, " + countEntries + " entries read)");
 		}
-		catch(Exception ex)
-		{
+		catch(Exception ex) {
 			throw RankLibError.create("Error in FeatureManager::readInput(): ", ex);
 		}
-		return samples;
+		return dataset;
 	}
 	/**
 	 * Read sets of rankings from multiple files. Then merge them altogether into a single ranking.
 	 * @param inputFiles
 	 * @return
 	 */
-	public static List<RankList> readInput(List<String> inputFiles)	
+	public static Dataset readInput(List<String> inputFiles)
 	{
-		List<RankList> samples = new ArrayList<>();
-		for(int i=0;i<inputFiles.size();i++)
-		{
-			List<RankList> s = readInput(inputFiles.get(i), false, false);
-			samples.addAll(s);
+		Dataset dataset = new Dataset();
+		for(int i=0;i<inputFiles.size();i++) {
+			readInput(dataset, inputFiles.get(i), false, false);
 		}
-		return samples;
+		return dataset;
 	}
 	/**
 	 * Read features specified in an input feature file. Expecting one feature per line. 
@@ -240,16 +247,16 @@ public class FeatureManager {
 	 * Obtain all features present in a sample set. 
 	 * Important: If your data (DataPoint objects) is loaded by RankLib (e.g. command-line use) or its APIs, there is nothing to watch out for.
 	 *            If you create the DataPoint objects yourself, make sure DataPoint.featureCount correctly reflects the total number features present in your dataset.
-	 * @param samples
+	 * @param dataset
 	 * @return
 	 */
-	public static int[] getFeatureFromSampleVector(List<RankList> samples)
+	public static int[] getFeatureFromSampleVector(Dataset dataset)
 	{
-		if(samples.size() == 0)
+		if(dataset.samples.size() == 0)
 		{
 			throw RankLibError.create("Error in FeatureManager::getFeatureFromSampleVector(): There are no training samples.");
 		}
-		int fc = DataPoint.getFeatureCount();
+		int fc = dataset.getFeatureCount();
 		int[] features = new int[fc];
 		for(int i=1;i<=fc;i++)
 			features[i-1] = i;

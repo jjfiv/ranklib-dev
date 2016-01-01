@@ -10,6 +10,7 @@
 package ciir.umass.edu.learning.tree;
 
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
@@ -336,7 +337,13 @@ public class LambdaMART extends Ranker {
 		PRINTLN("Min leaf support: " + minLeafSupport);
 		PRINTLN("Learning rate: " + learningRate);
 		PRINTLN("Stop early: " + nRoundToStopEarly + " rounds without performance gain on validation data");		
-	}	
+	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.LAMBDAMART;
+	}
+
 	public String name()
 	{
 		return "LambdaMART";

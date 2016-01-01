@@ -9,11 +9,12 @@
 
 package ciir.umass.edu.learning.neuralnet;
 
-import java.util.List;
-
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
+
+import java.util.List;
 
 public class LambdaRank extends RankNet {
 	//Parameters
@@ -127,7 +128,12 @@ public class LambdaRank extends RankNet {
 			straightLoss = 0;
 		lastError = error;
 	}
-	
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.LAMBDARANK;
+	}
+
 	public Ranker createNew()
 	{
 		return new LambdaRank();

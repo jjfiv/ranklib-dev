@@ -1,6 +1,6 @@
 package ciir.umass.edu.stats;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -8,7 +8,7 @@ import java.util.Random;
  * @author vdang
  *
  */
-public class RandomPermutationTest extends SignificanceTest {
+public class RandomPermutationTest implements SignificanceTest {
 	
 	public static int nPermutation = 10000;
 	private static String[] pad = new String[]{"", "0", "00", "000", "0000", "00000", "000000", "0000000", "00000000", "000000000"};
@@ -19,15 +19,15 @@ public class RandomPermutationTest extends SignificanceTest {
 	 * @param target
 	 * @return
 	 */
-	public double test(HashMap<String, Double> target, HashMap<String, Double> baseline)
+	public double test(Map<String, Double> target, Map<String, Double> baseline)
 	{
 		double[] b = new double[baseline.keySet().size()];//baseline
 		double[] t = new double[target.keySet().size()];//target
 		int c = 0;
 		for(String key : baseline.keySet())
 		{
-			b[c] = baseline.get(key).doubleValue();
-			t[c] = target.get(key).doubleValue();
+			b[c] = baseline.get(key);
+			t[c] = target.get(key);
 			c++;
 		}
 		double trueDiff = Math.abs(BasicStats.mean(b) - BasicStats.mean(t));

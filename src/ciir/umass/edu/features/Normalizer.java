@@ -9,50 +9,72 @@
 
 package ciir.umass.edu.features;
 
+import ciir.umass.edu.learning.Dataset;
+import ciir.umass.edu.learning.RankList;
+import ciir.umass.edu.utilities.RankLibError;
+
 import java.util.HashSet;
 import java.util.List;
-
-import ciir.umass.edu.learning.RankList;
 
 /**
  * @author vdang
  *
  * Abstract class for feature normalization
  */
-public class Normalizer {
-	public void normalize(RankList rl)
-	{	
-		//need overriding in subclass
+public abstract class Normalizer {
+	public void normalize(Dataset ds, RankList rl) {
+		if(rl.size() == 0) {
+			throw RankLibError.create("Error in Normalizor::normalize(): The input ranked list is empty");
+		}
+		int nFeature = ds.getFeatureCount();
+		int[] fids = new int[nFeature];
+		for(int i=1;i<=nFeature;i++)
+			fids[i-1] = i;
+		normalize(ds, rl, fids);
 	}
-	public void normalize(List<RankList> samples)
-	{
-		for(int i=0;i<samples.size();i++)
-			normalize(samples.get(i));
+	public abstract void normalize(Dataset ds, RankList rl, int[] fids);
+
+	public void normalize(Dataset ds) {
+		if(ds == null) return;
+		for (RankList sample : ds.samples) {
+			normalize(ds, sample);
+		}
 	}
-	public void normalize(RankList rl, int[] fids)
-	{
-		//need overriding in subclass
+	public void normalize(Dataset ds, int[] fids) {
+		if(ds == null) return;
+		for (RankList sample : ds.samples) {
+			normalize(ds, sample, fids);
+		}
 	}
-	public void normalize(List<RankList> samples, int[] fids)
-	{
-		for(int i=0;i<samples.size();i++)
-			normalize(samples.get(i), fids);
+	public void normalizeLists(Dataset ds, List<RankList> list, int[] fids) {
+		if(ds == null) return;
+		for (RankList sample : list) {
+			normalize(ds, sample, fids);
+		}
 	}
-	public int[] removeDuplicateFeatures(int[] fids)
-	{
-		HashSet<Integer> uniqueSet = new HashSet<Integer>();
-		for(int i=0;i<fids.length;i++)
-			if(!uniqueSet.contains(fids[i]))
-				uniqueSet.add(fids[i]);
+	public void normalizeSplits(Dataset ds, List<List<RankList>> lists, int[] fids) {
+		if(ds == null) return;
+		for (List<RankList> list : lists) {
+			for (RankList sample : list) {
+				normalize(ds, sample, fids);
+			}
+		}
+	}
+
+	public boolean isNoop() {
+		return false;
+	}
+
+	public int[] removeDuplicateFeatures(int[] fids) {
+		HashSet<Integer> uniqueSet = new HashSet<>();
+		for (int fid : fids)
+			if (!uniqueSet.contains(fid))
+				uniqueSet.add(fid);
 		fids = new int[uniqueSet.size()];
 		int fi=0;
-		for(Integer i : uniqueSet)
-			fids[fi++] = i.intValue();
+		for(int i : uniqueSet)
+			fids[fi++] = i;
 		return fids;
 	}
-	public String name()
-	{
-		//need overriding in subclass
-		return "";
-	}
+	public abstract String name();
 }

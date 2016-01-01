@@ -14,21 +14,21 @@ import ciir.umass.edu.metric.MetricScorer;
 import ciir.umass.edu.utilities.FileUtils;
 import ciir.umass.edu.utilities.MergeSorter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import java.util.Set;
-
-//- Some Java 7 file utilities for creating directories
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+//- Some Java 7 file utilities for creating directories
 
 
 
@@ -47,6 +47,7 @@ public abstract class Ranker {
 	protected double bestScoreOnValidationData = 0.0;
 	
 	protected List<RankList> validationSamples = null;
+	PrintStream out = System.out;
 	
 	protected Ranker()
 	{
@@ -196,4 +197,5 @@ public abstract class Ranker {
   public abstract void loadFromString(String fullText);
   public abstract String name();
   public abstract void printParameters();
+	public abstract RankerType rankerType();
 }

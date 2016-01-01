@@ -31,12 +31,11 @@ public class Combiner {
 		try{
 			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile), "ASCII"));
 			out.write("## " + (new RFRanker()).name() + "\n");
-			for(int i=0;i<fns.length;i++)
-			{
-				if(fns[i].indexOf(".progress") != -1)
+			for (String fn1 : fns) {
+				if (fn1.contains(".progress"))
 					continue;
-				String fn = directory + fns[i];
-				RFRanker r = (RFRanker)rf.loadRankerFromFile(fn);
+				String fn = directory + fn1;
+				RFRanker r = (RFRanker) rf.loadRankerFromFile(fn);
 				Ensemble en = r.getEnsembles()[0];
 				out.write(en.toString());
 			}

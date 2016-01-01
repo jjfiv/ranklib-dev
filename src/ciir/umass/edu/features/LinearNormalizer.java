@@ -10,6 +10,7 @@
 package ciir.umass.edu.features;
 
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.Dataset;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.utilities.RankLibError;
 
@@ -19,60 +20,46 @@ import java.util.Arrays;
  * @author Laura Dietz, vdang
  */
 public class LinearNormalizer extends Normalizer {
-	@Override
-    public void normalize(RankList rl)
-	{
-		if(rl.size() == 0)
-		{
+  @Override
+  public void normalize(Dataset ds, RankList rl, int[] fids)
+  {
+    if(rl.size() == 0) {
       throw RankLibError.create("Error in LinearNormalizor::normalize(): The input ranked list is empty");
-		}
-		int nFeature = DataPoint.getFeatureCount();
-        int[] fids = new int[nFeature];
-        for(int i=1;i<=nFeature;i++)
-        	fids[i-1] = i;
-        normalize(rl, fids);
     }
-	@Override
-    public void normalize(RankList rl, int[] fids)
-	{
-		if(rl.size() == 0)
-		{
-      throw RankLibError.create("Error in LinearNormalizor::normalize(): The input ranked list is empty");
-		}
-		
-		//remove duplicate features from the input @fids ==> avoid normalizing the same features multiple times
-		fids = removeDuplicateFeatures(fids);
-				
-        float[] min = new float[fids.length];
-        float[] max = new float[fids.length];
-        Arrays.fill(min, 0);
-        Arrays.fill(max, 0);
-        for(int i=0;i<rl.size();i++)
-        {
-            DataPoint dp = rl.get(i);
-            for(int j=0;j<fids.length;j++)
-            {
-                min[j] = Math.min(min[j],dp.getFeatureValue(fids[j]));
-                max[j] = Math.max(max[j],dp.getFeatureValue(fids[j]));
-            }
-        }
-        for(int i=0;i<rl.size();i++)
-        {
-            DataPoint dp = rl.get(i);
-            for(int j=0;j<fids.length;j++)
-            {
-            	if(max[j] > min[j])
-            	{
-	                float value = (dp.getFeatureValue(fids[j]) - min[j]) / (max[j] - min[j]);
-	                dp.setFeatureValue(fids[j], value);
-            	}
-            	else
-            		dp.setFeatureValue(fids[j], 0);
-            }
-        }
-    }
-    public String name()
+
+    //remove duplicate features from the input @fids ==> avoid normalizing the same features multiple times
+    fids = removeDuplicateFeatures(fids);
+
+    float[] min = new float[fids.length];
+    float[] max = new float[fids.length];
+    Arrays.fill(min, 0);
+    Arrays.fill(max, 0);
+    for(int i=0;i<rl.size();i++)
     {
-        return "linear";
+      DataPoint dp = rl.get(i);
+      for(int j=0;j<fids.length;j++)
+      {
+        min[j] = Math.min(min[j],dp.getFeatureValue(fids[j]));
+        max[j] = Math.max(max[j],dp.getFeatureValue(fids[j]));
+      }
     }
+    for(int i=0;i<rl.size();i++)
+    {
+      DataPoint dp = rl.get(i);
+      for(int j=0;j<fids.length;j++)
+      {
+        if(max[j] > min[j])
+        {
+          float value = (dp.getFeatureValue(fids[j]) - min[j]) / (max[j] - min[j]);
+          dp.setFeatureValue(fids[j], value);
+        }
+        else
+          dp.setFeatureValue(fids[j], 0);
+      }
+    }
+  }
+  public String name()
+  {
+    return "linear";
+  }
 }

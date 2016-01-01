@@ -17,6 +17,8 @@ import java.util.Arrays;
  */
 public class SparseDataPoint extends DataPoint {
 
+	public SparseDataPoint() { }
+
 	// Access pattern of the feature values
 	private enum accessPattern {SEQUENTIAL, RANDOM};
 	private static accessPattern searchPattern = accessPattern.RANDOM;
@@ -34,7 +36,8 @@ public class SparseDataPoint extends DataPoint {
 	// Internal search optimizers. Currently unused.
 	int lastMinId = -1;
 	int lastMinPos = -1;
-	
+
+	@Deprecated
 	public SparseDataPoint(String text) {
 		super(text);
 	}
@@ -80,7 +83,7 @@ public class SparseDataPoint extends DataPoint {
 	public float getFeatureValue(int fid)
 	{
 		//long time = System.nanoTime();
-		if(fid <= 0 || fid > getFeatureCount())
+		if(fid <= 0 || fid > knownFeatures)
 		{
 			System.out.println("Error in SparseDataPoint::getFeatureValue(): requesting invalid feature, fid=" + fid);
 			System.exit(1);
@@ -98,7 +101,7 @@ public class SparseDataPoint extends DataPoint {
 	@Override
 	public void setFeatureValue(int fid, float fval) 
 	{
-		if(fid <= 0 || fid > getFeatureCount())
+		if(fid <= 0 || fid > knownFeatures)
 		{
 			System.out.println("Error in SparseDataPoint::setFeatureValue(): feature (id=" + fid + ") out of range.");
 			System.exit(1);

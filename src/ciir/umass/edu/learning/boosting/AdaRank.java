@@ -10,6 +10,7 @@
 package ciir.umass.edu.learning.boosting;
 
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
@@ -354,6 +355,12 @@ public class AdaRank extends Ranker {
 		PRINTLN("Tolerance: " + tolerance);
 		PRINTLN("Max Sel. Count: " + maxSelCount);
 	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.ADARANK;
+	}
+
 	public String name()
 	{
 		return "AdaRank";

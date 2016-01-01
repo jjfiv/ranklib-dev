@@ -6,16 +6,16 @@ package ciir.umass.edu.utilities;
  * @author jfoley
  */
 public class RankLibError extends RuntimeException {
-  private RankLibError(Exception e) { super(e); }
-  private RankLibError(String message) {
+  public RankLibError(Throwable e) { super(e); }
+  public RankLibError(String message) {
     super(message);
   }
-  private RankLibError(String message, Exception cause) {
+  public RankLibError(String message, Throwable cause) {
     super(message, cause);
   }
 
   /** Don't rewrap RankLibErrors in RankLibErrors */
-  public static RankLibError create(Exception e) {
+  public static RankLibError create(Throwable e) {
     if(e instanceof RankLibError) {
       return (RankLibError) e;
     }
@@ -27,7 +27,7 @@ public class RankLibError extends RuntimeException {
   }
 
   /** Don't rewrap RankLibErrors in RankLibErrors */
-  public static RankLibError create(String message, Exception cause) {
+  public static RankLibError create(String message, Throwable cause) {
     if(cause instanceof RankLibError) {
       return (RankLibError) cause;
     }

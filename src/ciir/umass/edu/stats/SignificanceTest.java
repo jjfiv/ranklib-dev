@@ -1,15 +1,7 @@
 package ciir.umass.edu.stats;
 
-import java.util.HashMap;
+import java.util.Map;
 
-public class SignificanceTest {
-
-	public double test(HashMap<String, Double> target, HashMap<String, Double> baseline)
-	{
-		return 0;
-	}
-	protected void makeRCall()
-	{
-		
-	}
+public interface SignificanceTest {
+	double test(Map<String, Double> target, Map<String, Double> baseline);
 }

@@ -26,7 +26,7 @@ public class MyThreadPool extends ThreadPoolExecutor {
 	
 	private MyThreadPool(int size)
 	{
-		super(size, size, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		super(size, size, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 		semaphore = new Semaphore(size, true);
 		this.size = size;
 	}
@@ -80,7 +80,7 @@ public class MyThreadPool extends ThreadPoolExecutor {
 	}
 	public int[] partition(int listSize)
 	{
-		int nChunks = Math.min(listSize, size);
+		int nChunks = Math.max(1, Math.min(listSize, size));
 		int chunkSize = listSize/nChunks;
 		int mod = listSize % nChunks;
 		int[] partition = new int[nChunks+1];

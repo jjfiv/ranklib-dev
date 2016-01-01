@@ -9,47 +9,21 @@
 
 package ciir.umass.edu.features;
 
-import java.util.Arrays;
-
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.Dataset;
 import ciir.umass.edu.learning.RankList;
+import ciir.umass.edu.utilities.RankLibError;
+
+import java.util.Arrays;
 
 /**
  * @author vdang
  */
 public class SumNormalizor extends Normalizer {
 	@Override
-	public void normalize(RankList rl) {
-		if(rl.size() == 0)
-		{
-			System.out.println("Error in SumNormalizor::normalize(): The input ranked list is empty");
-			System.exit(1);
-		}
-		int nFeature = DataPoint.getFeatureCount();
-		double[] norm = new double[nFeature];
-		Arrays.fill(norm, 0);
-		for(int i=0;i<rl.size();i++)
-		{
-			DataPoint dp = rl.get(i);
-			for(int j=1;j<=nFeature;j++)
-				norm[j-1] += Math.abs(dp.getFeatureValue(j));
-		}
-		for(int i=0;i<rl.size();i++)
-		{
-			DataPoint dp = rl.get(i);
-			for(int j=1;j<=nFeature;j++)
-			{
-				if(norm[j-1] > 0)
-					dp.setFeatureValue(j, (float)(dp.getFeatureValue(j)/norm[j-1]));
-			}
-		}
-	}
-	@Override
-	public void normalize(RankList rl, int[] fids) {
-		if(rl.size() == 0)
-		{
-			System.out.println("Error in SumNormalizor::normalize(): The input ranked list is empty");
-			System.exit(1);
+	public void normalize(Dataset ds, RankList rl, int[] fids) {
+		if(rl.size() == 0) {
+			throw new RankLibError("Error in SumNormalizor::normalize(): The input ranked list is empty");
 		}
 		
 		//remove duplicate features from the input @fids ==> avoid normalizing the same features multiple times
@@ -57,18 +31,14 @@ public class SumNormalizor extends Normalizer {
 				
 		double[] norm = new double[fids.length];
 		Arrays.fill(norm, 0);
-		for(int i=0;i<rl.size();i++)
-		{
-			DataPoint dp = rl.get(i);
-			for(int j=0;j<fids.length;j++)
+		for (DataPoint dp : rl) {
+			for (int j = 0; j < fids.length; j++)
 				norm[j] += Math.abs(dp.getFeatureValue(fids[j]));
 		}
-		for(int i=0;i<rl.size();i++)
-		{
-			DataPoint dp = rl.get(i);
-			for(int j=0;j<fids.length;j++)
-				if(norm[j] > 0)
-					dp.setFeatureValue(fids[j], (float)(dp.getFeatureValue(fids[j])/norm[j]));
+		for (DataPoint dp : rl) {
+			for (int j = 0; j < fids.length; j++)
+				if (norm[j] > 0)
+					dp.setFeatureValue(fids[j], (float) (dp.getFeatureValue(fids[j]) / norm[j]));
 		}
 	}
 	public String name()

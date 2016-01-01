@@ -9,10 +9,12 @@
 
 package ciir.umass.edu.learning.tree;
 
-import java.util.List;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
+
+import java.util.List;
 
 /**
  * @author vdang
@@ -61,5 +63,10 @@ public class MART extends LambdaMART {
 			}
 			s.setOutput(s1/idx.length);
 		}
+	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.MART;
 	}
 }

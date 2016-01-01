@@ -35,10 +35,9 @@ public class MergeSorter {
 			//System.out.println("");
 		}
 		double start = System.nanoTime();
-		for(int r=0;r<f.length;r++)
-			sort(f[r], false);
+		for (float[] aF : f) sort(aF, false);
 		double end = System.nanoTime();		
-		System.out.println("# " + (double)(end-start)/1e9 + " ");
+		System.out.println("# " + (end-start)/1e9 + " ");
 	}
 	
 	public static int[] sort(float[] list, boolean asc)

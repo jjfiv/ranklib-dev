@@ -27,7 +27,7 @@ public class RFRanker extends Ranker {
 	public static float subSamplingRate = 1.0f;//sampling of samples (*WITH* replacement)
 	public static float featureSamplingRate = 0.3f;//sampling of features (*WITHOUT* replacement)
 	//[b] what to do in each bag
-	public static RANKER_TYPE rType = RANKER_TYPE.MART;//which algorithm to bag
+	public static RankerType rType = RankerType.MART;//which algorithm to bag
 	public static int nTrees = 1;//how many trees in each bag. If nTree > 1 ==> each bag will contain an ensemble of gradient boosted trees.
 	public static int nTreeLeaves = 100;
 	public static float learningRate = 0.1F;//or shrinkage. *ONLY* matters if nTrees > 1.
@@ -190,6 +190,12 @@ public class RFRanker extends Ranker {
 		PRINTLN("No. of threshold candidates: " + nThreshold);
 		PRINTLN("Learning rate: " + learningRate);
 	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.RANDOM_FOREST;
+	}
+
 	public String name()
 	{
 		return "Random Forests";

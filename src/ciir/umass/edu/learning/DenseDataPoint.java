@@ -4,10 +4,13 @@ import ciir.umass.edu.utilities.RankLibError;
 
 public class DenseDataPoint extends DataPoint {
 
+	public DenseDataPoint() { }
+
+	@Deprecated
 	public DenseDataPoint(String text) {
 		super(text);
 	}
-	
+
 	public DenseDataPoint(DenseDataPoint dp)
 	{
 		label = dp.label;

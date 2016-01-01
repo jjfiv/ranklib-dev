@@ -23,8 +23,7 @@ import ciir.umass.edu.utilities.RankLibError;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author vdang
@@ -32,28 +31,31 @@ import java.util.List;
  * This class implements the Ranker factory. All ranking algorithms implemented have to be recognized in this class. 
  */
 public class RankerFactory {
+	protected List<Ranker> rFactory = Arrays.asList(
+			new MART(),
+			new RankBoost(),
+			new RankNet(),
+			new AdaRank(),
+			new CoorAscent(),
+			new LambdaRank(),
+			new LambdaMART(),
+			new ListNet(),
+			new RFRanker(),
+			new LinearRegRank());
 
-	protected Ranker[] rFactory = new Ranker[]{new MART(), new RankBoost(), new RankNet(), new AdaRank(), new CoorAscent(), new LambdaRank(), new LambdaMART(), new ListNet(), new RFRanker(), new LinearRegRank()};
-	protected static HashMap<String, RANKER_TYPE> map = new HashMap<String, RANKER_TYPE>();
+	protected static TreeMap<String, RankerType> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	
-	public RankerFactory()
-	{
-		map.put(createRanker(RANKER_TYPE.MART).name().toUpperCase(), RANKER_TYPE.MART);
-		map.put(createRanker(RANKER_TYPE.RANKNET).name().toUpperCase(), RANKER_TYPE.RANKNET);
-		map.put(createRanker(RANKER_TYPE.RANKBOOST).name().toUpperCase(), RANKER_TYPE.RANKBOOST);
-		map.put(createRanker(RANKER_TYPE.ADARANK).name().toUpperCase(), RANKER_TYPE.ADARANK);
-		map.put(createRanker(RANKER_TYPE.COOR_ASCENT).name().toUpperCase(), RANKER_TYPE.COOR_ASCENT);
-		map.put(createRanker(RANKER_TYPE.LAMBDARANK).name().toUpperCase(), RANKER_TYPE.LAMBDARANK);
-		map.put(createRanker(RANKER_TYPE.LAMBDAMART).name().toUpperCase(), RANKER_TYPE.LAMBDAMART);
-		map.put(createRanker(RANKER_TYPE.LISTNET).name().toUpperCase(), RANKER_TYPE.LISTNET);
-		map.put(createRanker(RANKER_TYPE.RANDOM_FOREST).name().toUpperCase(), RANKER_TYPE.RANDOM_FOREST);
-		map.put(createRanker(RANKER_TYPE.LINEAR_REGRESSION).name().toUpperCase(), RANKER_TYPE.LINEAR_REGRESSION);
-	}	
-	public Ranker createRanker(RANKER_TYPE type)
-	{
-		return rFactory[type.ordinal() - RANKER_TYPE.MART.ordinal()].createNew();
+	public RankerFactory() {
+		for (Ranker ranker : rFactory) {
+			String name = createRanker(ranker.rankerType()).name();
+			map.put(name, ranker.rankerType());
+		}
 	}
-	public Ranker createRanker(RANKER_TYPE type, List<RankList> samples, int[] features, MetricScorer scorer)
+	public Ranker createRanker(RankerType type)
+	{
+		return rFactory.get(type.ordinal() - RankerType.MART.ordinal()).createNew();
+	}
+	public Ranker createRanker(RankerType type, List<RankList> samples, int[] features, MetricScorer scorer)
 	{
 		Ranker r = createRanker(type);
 		r.setTrainingSet(samples);
@@ -61,57 +63,60 @@ public class RankerFactory {
 		r.setMetricScorer(scorer);
 		return r;
 	}
-	@SuppressWarnings("unchecked")
-	public Ranker createRanker(String className)
-	{
-		Ranker r = null;
-		try {
-			Class c = Class.forName(className);
-			r = (Ranker) c.newInstance();
-		}
-		catch (ClassNotFoundException e) {
-			System.out.println("Could find the class \"" + className + "\" you specified. Make sure the jar library is in your classpath.");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		catch (InstantiationException e) {
-			System.out.println("Cannot create objects from the class \"" + className + "\" you specified.");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		catch (IllegalAccessException e) {
-			System.out.println("The class \"" + className + "\" does not implement the Ranker interface.");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return r;
+	public Ranker createRanker(String rankerName) {
+		RankerType rankerType = map.get(rankerName);
+		if(rankerType == null) throw new IllegalArgumentException("No such RANKER="+rankerName);
+		return createRanker(rankerType);
 	}
-	public Ranker createRanker(String className, List<RankList> samples, int[] features, MetricScorer scorer)
-	{
-		Ranker r = createRanker(className);
-		r.setTrainingSet(samples);
-		r.setFeatures(features);
-		r.setMetricScorer(scorer);
-		return r;
-	}
-	public Ranker loadRankerFromFile(String modelFile)
-	{
+	public Ranker loadRankerFromFile(String modelFile) {
     return loadRankerFromString(FileUtils.read(modelFile, "ASCII"));
 	}
-  public Ranker loadRankerFromString(String fullText)
-  {
+  public Ranker loadRankerFromString(String fullText) {
     try (BufferedReader in = new BufferedReader(new StringReader(fullText))) {
 			Ranker r;
       String content = in.readLine();//read the first line to get the name of the ranking algorithm
       content = content.replace("## ", "").trim();
       System.out.println("Model:\t\t" + content);
-      r = createRanker(map.get(content.toUpperCase()));
+      r = createRanker(content);
       r.loadFromString(fullText);
 			return r;
-    }
-    catch(Exception ex)
-    {
+    } catch(Exception ex) {
 			throw RankLibError.create(ex);
     }
   }
+
+	public List<String> getRankerNames() {
+		List<String> names = new ArrayList<>();
+		for (Ranker ranker : rFactory) {
+			names.add(ranker.name());
+		}
+		return names;
+	}
+
+	public List<Ranker> getAllRankers() {
+		return Collections.unmodifiableList(rFactory);
+	}
+
+	public RankerType getBaggedRankerType(int rt) {
+		if(rt == 0 || rt == 6) {
+			for (Ranker ranker : rFactory) {
+				RankerType x = ranker.rankerType();
+				if(x.getRankerId() == rt) {
+					return x;
+				}
+			}
+		}
+		throw RankLibError.create("Ranker="+rt + " cannot be bagged. Random Forests only supports MART/LambdaMART.");
+
+	}
+
+	public Ranker createRanker(int rt) {
+		for (Ranker ranker : rFactory) {
+			RankerType x = ranker.rankerType();
+			if(x.getRankerId() == rt) {
+				return ranker.createNew();
+			}
+		}
+		throw RankLibError.create("Ranker="+rt + " cannot be created.");
+	}
 }

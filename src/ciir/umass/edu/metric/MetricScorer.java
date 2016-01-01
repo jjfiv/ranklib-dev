@@ -47,8 +47,7 @@ public abstract class MetricScorer {
 	public double score(List<RankList> rl)
 	{
 		double score = 0.0;
-		for(int i=0;i<rl.size();i++)
-			score += score(rl.get(i));
+		for (RankList aRl : rl) score += score(aRl);
 		return score/rl.size();
 	}
 	

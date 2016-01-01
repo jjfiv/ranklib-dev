@@ -10,6 +10,7 @@
 package ciir.umass.edu.learning.neuralnet;
 
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
@@ -35,7 +36,13 @@ public class ListNet extends RankNet {
 	{
 		super(samples, features, scorer);
 	}
-	
+
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.LISTNET;
+	}
+
 	protected float[] feedForward(RankList rl)
 	{
 		float[] labels = new float[rl.size()];

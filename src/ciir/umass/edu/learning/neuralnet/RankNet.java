@@ -10,6 +10,7 @@
 package ciir.umass.edu.learning.neuralnet;
 
 import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.learning.RankerType;
 import ciir.umass.edu.learning.RankList;
 import ciir.umass.edu.learning.Ranker;
 import ciir.umass.edu.metric.MetricScorer;
@@ -467,6 +468,12 @@ public class RankNet extends Ranker {
 		PRINTLN("No. of hidden nodes per layer: " + nHiddenNodePerLayer);
 		PRINTLN("Learning rate: " + learningRate);
 	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.RANKNET;
+	}
+
 	public String name()
 	{
 		return "RankNet";

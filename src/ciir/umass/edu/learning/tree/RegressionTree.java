@@ -9,10 +9,10 @@
 
 package ciir.umass.edu.learning.tree;
 
+import ciir.umass.edu.learning.DataPoint;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import ciir.umass.edu.learning.DataPoint;
 
 /**
  * @author vdang
@@ -114,8 +114,7 @@ public class RegressionTree {
 		thresholds = null;
 		index = null;
 		hist = null;
-		for(int i=0;i<leaves.size();i++)
-			leaves.get(i).clearSamples();
+		for (Split leaf : leaves) leaf.clearSamples();
 	}
 	
 	/**
@@ -137,8 +136,7 @@ public class RegressionTree {
 	public double variance()
 	{
 		double var = 0;
-		for(int i=0;i<leaves.size();i++)
-			var += leaves.get(i).getDeviance();
+		for (Split leaf : leaves) var += leaf.getDeviance();
 		return var;
 	}
 

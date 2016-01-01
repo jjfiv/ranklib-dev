@@ -9,16 +9,17 @@
 
 package ciir.umass.edu.learning;
 
-import java.util.List;
-
 import ciir.umass.edu.utilities.Sorter;
+
+import java.util.AbstractList;
+import java.util.List;
 
 /**
  * @author vdang
  * 
  * This class implement the list of objects (each of which is a DataPoint) to be ranked. 
  */
-public class RankList {
+public class RankList extends AbstractList<DataPoint> {
 
 	protected DataPoint[] rl = null;
 	
@@ -58,9 +59,10 @@ public class RankList {
 	{
 		return rl[k];
 	}
-	public void set(int k, DataPoint p)
-	{
+	public DataPoint set(int k, DataPoint p) {
+		DataPoint prev = rl[k];
 		rl[k] = p;
+		return prev;
 	}
 	public RankList getCorrectRanking()
 	{

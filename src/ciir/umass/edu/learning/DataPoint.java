@@ -9,9 +9,7 @@
 
 package ciir.umass.edu.learning;
 
-import ciir.umass.edu.utilities.RankLibError;
-
-import java.util.Arrays;
+import ciir.umass.edu.features.LibSVMFormat;
 
 /**
  * @author vdang
@@ -20,9 +18,7 @@ import java.util.Arrays;
  * It should be general enough for other ranking applications as well (not limited to just IR I hope). 
  */
 public abstract class DataPoint {
-	
-	public static int MAX_FEATURE = 51;
-	public static int FEATURE_INCREASE = 10;
+
 	protected static int featureCount = 0;
 	
 	protected static float UNKNOWN = Float.NaN;
@@ -38,83 +34,12 @@ public abstract class DataPoint {
 	
 	//internal to learning procedures
 	protected double cached = -1.0;//the latest evaluation score of the learned model on this data point
-	
+
 	protected static boolean isUnknown(float fVal)
 	{
 		return Float.isNaN(fVal);
 	}
-	protected static String getKey(String pair)
-	{
-		return pair.substring(0, pair.indexOf(":"));
-	}
-	protected static String getValue(String pair)
-	{
-		return pair.substring(pair.lastIndexOf(":")+1);
-	}	
-	
-	/**
-	 * Parse the given line of text to construct a dense array of feature values and reset metadata.
-	 * @param text
-	 * @return Dense array of feature values
-	 */
-	protected float[] parse(String text)
-	{
-		float[] fVals = new float[MAX_FEATURE];
-		Arrays.fill(fVals, UNKNOWN);
-		int lastFeature = -1;
-		try {
-			int idx = text.indexOf("#");
-			if(idx != -1)
-			{
-				description = text.substring(idx);
-				text = text.substring(0, idx).trim();//remove the comment part at the end of the line
-			}
-			String[] fs = text.split("\\s+");
-			label = Float.parseFloat(fs[0]);
-			if(label < 0)
-			{
-				System.out.println("Relevance label cannot be negative. System will now exit.");
-				System.exit(1);
-			}
-			id = getValue(fs[1]);
-			String key = "";
-			String val = "";
-			for(int i=2;i<fs.length;i++)
-			{
-				knownFeatures++;
-				key = getKey(fs[i]);
-				val = getValue(fs[i]);
-				int f = Integer.parseInt(key);
-				if(f <= 0) throw RankLibError.create("Cannot use feature numbering less than or equal to zero. Start your features at 1.");
-				if(f >= MAX_FEATURE)
-				{
-					while(f >= MAX_FEATURE)
-						MAX_FEATURE += FEATURE_INCREASE;
-					float[] tmp = new float [MAX_FEATURE];
-					System.arraycopy(fVals, 0, tmp, 0, fVals.length);
-					Arrays.fill(tmp, fVals.length, MAX_FEATURE, UNKNOWN);
-					fVals = tmp;
-				}
-				fVals[f] = Float.parseFloat(val);
-				
-				if(f > featureCount)//#feature will be the max_id observed
-					featureCount = f;
-				
-				if(f > lastFeature)//note that lastFeature is the max_id observed for this current data point, whereas featureCount is the max_id observed on the entire dataset
-					lastFeature = f;
-			}
-			//shrink fVals
-			float[] tmp = new float[lastFeature+1];
-			System.arraycopy(fVals, 0, tmp, 0, lastFeature+1);
-			fVals = tmp;
-		}
-		catch(Exception ex)
-		{
-			throw RankLibError.create("Error in DataPoint::parse()", ex);
-		}
-		return fVals;
-	}
-	
+
 	/**
 	* Get the value of the feature with the given feature ID
 	* @param fid
@@ -150,8 +75,8 @@ public abstract class DataPoint {
 	*/
 	protected DataPoint(String text)
 	{
-		float[] fVals = parse(text);
-		setFeatureVector(fVals);
+		PointBuilder pb = LibSVMFormat.parsePoint(text, new Dataset());
+		pb.build(this);
 	}
 	
 	public String getID()
@@ -206,5 +131,13 @@ public abstract class DataPoint {
 	public static int getFeatureCount()
 	{
 		return featureCount;
-	}	
+	}
+
+	public int getIntLabel() {
+		return getLabel() > 0.0f ? 1 : 0;
+	}
+
+	public void setKnownFeatures(int knownFeatures) {
+		this.knownFeatures = knownFeatures;
+	}
 }

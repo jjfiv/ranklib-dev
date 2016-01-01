@@ -9,10 +9,10 @@
 
 package ciir.umass.edu.learning;
 
-import java.util.List;
-
 import ciir.umass.edu.metric.MetricScorer;
 import ciir.umass.edu.utilities.SimpleMath;
+
+import java.util.List;
 
 /**
  * @author vdang
@@ -24,7 +24,7 @@ public class RankerTrainer {
 	protected RankerFactory rf = new RankerFactory();
 	protected double trainingTime = 0;
 	
-	public Ranker train(RANKER_TYPE type, List<RankList> train, int[] features, MetricScorer scorer)
+	public Ranker train(RankerType type, List<RankList> train, int[] features, MetricScorer scorer)
 	{
 		Ranker ranker = rf.createRanker(type, train, features, scorer);
 		long start = System.nanoTime();
@@ -34,7 +34,19 @@ public class RankerTrainer {
 		//printTrainingTime();
 		return ranker;
 	}
-	public Ranker train(RANKER_TYPE type, List<RankList> train, List<RankList> validation, int[] features, MetricScorer scorer)
+	public Ranker train(Ranker ranker, List<RankList> train, List<RankList> validation, int[] features, MetricScorer scorer) {
+		ranker.setTrainingSet(train);
+		ranker.setValidationSet(validation);
+		ranker.setFeatures(features);
+		ranker.setMetricScorer(scorer);
+		long start = System.nanoTime();
+		ranker.init();
+		ranker.learn();
+		trainingTime = System.nanoTime() - start;
+		//printTrainingTime();
+		return ranker;
+	}
+	public Ranker train(RankerType type, List<RankList> train, List<RankList> validation, int[] features, MetricScorer scorer)
 	{
 		Ranker ranker = rf.createRanker(type, train, features, scorer);
 		ranker.setValidationSet(validation);

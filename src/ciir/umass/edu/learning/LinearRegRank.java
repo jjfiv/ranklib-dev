@@ -173,6 +173,12 @@ public class LinearRegRank extends Ranker {
 	{
 		PRINTLN("L2-norm regularization: lambda = " + lambda);
 	}
+
+	@Override
+	public RankerType rankerType() {
+		return RankerType.LINEAR_REGRESSION;
+	}
+
 	public String name()
 	{
 		return "Linear Regression";
