@@ -23,7 +23,10 @@ import java.util.List;
  * @author Van Dang
  * @version 1.3 (July 29, 2008)
  */
-public class FileUtils {
+public final class FileUtils {
+	/** Utility class, never instantiate. */
+	private FileUtils() { }
+
 	/**
 	 * Read the content of a file.
 	 * @param filename The file to read.
