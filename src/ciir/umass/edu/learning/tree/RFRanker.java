@@ -44,12 +44,12 @@ public class RFRanker extends Ranker {
 		ensembles = new Ensemble[nBag];
 		//initialize parameters for the tree(s) built in each bag
 		this.factory = new RankerFactory();
-		factory.lambdaMart.nTrees = nTrees;
-		factory.lambdaMart.nTreeLeaves = nTreeLeaves;
-		factory.lambdaMart.learningRate = learningRate;
-		factory.lambdaMart.nThreshold = nThreshold;
-		factory.lambdaMart.minLeafSupport = minLeafSupport;
-		factory.lambdaMart.nRoundToStopEarly = -1;//no early-stopping since we're doing bagging
+		factory.mart.nTrees = factory.lambdaMart.nTrees = nTrees;
+		factory.mart.nTreeLeaves = factory.lambdaMart.nTreeLeaves = nTreeLeaves;
+		factory.mart.learningRate = factory.lambdaMart.learningRate = learningRate;
+		factory.mart.nThreshold = factory.lambdaMart.nThreshold = nThreshold;
+		factory.mart.minLeafSupport = factory.lambdaMart.minLeafSupport = minLeafSupport;
+		factory.mart.nRoundToStopEarly = factory.lambdaMart.nRoundToStopEarly = -1;//no early-stopping since we're doing bagging
 		//turn on feature sampling
 		FeatureHistogram.samplingRate = featureSamplingRate;
 		PRINTLN("[Done]");
