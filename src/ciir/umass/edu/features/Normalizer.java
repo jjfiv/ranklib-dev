@@ -26,7 +26,7 @@ public abstract class Normalizer {
 		if(rl.size() == 0) {
 			throw RankLibError.create("Error in Normalizor::normalize(): The input ranked list is empty");
 		}
-		int nFeature = ds.getFeatureCount();
+		int nFeature = ds.getMaxFeaturePosition();
 		int[] fids = new int[nFeature];
 		for(int i=1;i<=nFeature;i++)
 			fids[i-1] = i;

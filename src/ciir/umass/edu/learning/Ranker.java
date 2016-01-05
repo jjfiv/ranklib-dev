@@ -50,7 +50,7 @@ public abstract class Ranker {
 
 	public int getFeatureCount() {
 		if(this.dataset != null) {
-			return dataset.getFeatureCount();
+			return dataset.getMaxFeaturePosition();
 		}
 
 		// calculate if we don't have a reference to the whole dataset:

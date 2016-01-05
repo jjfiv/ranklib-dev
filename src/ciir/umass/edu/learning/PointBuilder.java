@@ -27,6 +27,7 @@ public class PointBuilder {
   }
 
   public PointBuilder setDescription(String description) {
+    if(!description.startsWith("#")) throw new IllegalArgumentException("Descriptions must start with a comment.");
     this.description = description;
     return this;
   }
@@ -41,9 +42,14 @@ public class PointBuilder {
     return this;
   }
 
-  public void set(int fid, float value) {
+  public boolean hasFeature(int fid) {
+    return this.knownFeatures.get(fid);
+  }
+
+  public PointBuilder set(int fid, float value) {
     knownFeatures.set(fid);
-    if (dataset.resizeToFit(fid)) {
+    if (dataset.resizeToFit(fid) || fVals.length <= fid) {
+      assert(dataset.maxFeature > fid);
       // make a new buffer
       float[] tmp = new float[dataset.maxFeature];
       // fill it with NaNs
@@ -57,6 +63,7 @@ public class PointBuilder {
 
     this.lastFeature = Math.max(this.lastFeature, fid);
     fVals[fid] = value;
+    return this;
   }
 
   public int getMaxObservedFeature() {

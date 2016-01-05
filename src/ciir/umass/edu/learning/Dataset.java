@@ -10,7 +10,7 @@ public class Dataset extends AbstractList<RankList> {
   public int maxFeature = 51;
   public int featureIncrease = 10;
   /** Max observed feature */
-  public int featureCount = 0;
+  public int maxFeaturePosition = 0;
 
   /** Datastorage */
   public List<RankList> samples;
@@ -20,8 +20,8 @@ public class Dataset extends AbstractList<RankList> {
     this.samples = new ArrayList<>();
   }
 
-  public int getFeatureCount() {
-    return featureCount;
+  public int getMaxFeaturePosition() {
+    return maxFeaturePosition;
   }
 
   @Override
@@ -50,11 +50,11 @@ public class Dataset extends AbstractList<RankList> {
       maxFeature += featureIncrease;
       resize = true;
     }
-    featureCount = Math.max(fid, featureCount);
+    maxFeaturePosition = Math.max(fid, maxFeaturePosition);
     return resize;
   }
 
   public int getNextFeatureId() {
-    return featureCount+1;
+    return maxFeaturePosition +1;
   }
 }
