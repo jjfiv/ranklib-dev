@@ -99,4 +99,20 @@ public class PointBuilder {
     pt.setFeatureVector(getRawFeatures());
     pt.setKnownFeatures(knownFeatures.cardinality());
   }
+
+  public BitSet getObservedFeatures() {
+    return knownFeatures;
+  }
+
+  public String getQID() {
+    return qid;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public float getLabel() {
+    return label;
+  }
 }

@@ -53,4 +53,8 @@ public class Dataset extends AbstractList<RankList> {
     featureCount = Math.max(fid, featureCount);
     return resize;
   }
+
+  public int getNextFeatureId() {
+    return featureCount+1;
+  }
 }

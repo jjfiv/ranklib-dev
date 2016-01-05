@@ -134,4 +134,6 @@ public abstract class DataPoint {
 	public int getKnownFeatures() {
 		return knownFeatures;
 	}
+
+	public abstract boolean hasFeature(int fid);
 }
