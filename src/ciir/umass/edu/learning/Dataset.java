@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class Dataset extends AbstractList<RankList> {
   public List<String> inputFiles;
-  public int maxFeature = 51;
+  public int maxFeature = 32;
   public int featureIncrease = 10;
   /** Max observed feature */
   public int maxFeaturePosition = 0;

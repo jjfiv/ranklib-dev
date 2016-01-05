@@ -38,7 +38,34 @@ public class PointBuilderTest {
      } catch (IllegalArgumentException iae) {
        assertNotNull(iae);
      }
+  }
 
+  @Test
+  public void testResizeLogic() {
+    Dataset ds = new Dataset();
+
+    // first resize
+    PointBuilder b = ds.makePointBuilder();
+    b.set(57, 1f);
+    assertEquals(57, ds.getMaxFeaturePosition());
+
+    // now resize a different vector:
+    PointBuilder a = ds.makePointBuilder();
+    a.set(200, 3f);
+    assertEquals(200, ds.getMaxFeaturePosition());
+
+    // should resize b as necessary, when new things come in, but not change the MaxFeaturePosition
+    b.set(200, 1f);
+    assertEquals(200, ds.getMaxFeaturePosition());
+
+    PointBuilder c = ds.makePointBuilder();
+    c.set(2000, 2f);
+    assertEquals(2000, ds.getMaxFeaturePosition());
+
+
+    assertFalse(c.hasFeature(57));
+    assertTrue(b.hasFeature(57));
+    assertTrue(c.hasFeature(2000));
   }
 
 }
