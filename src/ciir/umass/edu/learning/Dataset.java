@@ -57,4 +57,13 @@ public class Dataset extends AbstractList<RankList> {
   public int getNextFeatureId() {
     return maxFeaturePosition +1;
   }
+
+  public int[] getFeatureArray() {
+    int N = maxFeaturePosition;
+    int[] data = new int[N];
+    for (int i = 0; i < N; i++) {
+      data[i] = i+1;
+    }
+    return data;
+  }
 }
