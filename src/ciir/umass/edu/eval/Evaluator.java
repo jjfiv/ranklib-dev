@@ -184,6 +184,7 @@ public class Evaluator {
 		if(!this.cfg.trainFile.isEmpty()) {
 			ranker = cfg.factory.createRanker(cfg.rankerType);
 			train();
+
 		} else { //scenario: test a saved model
 			test();
 		}
