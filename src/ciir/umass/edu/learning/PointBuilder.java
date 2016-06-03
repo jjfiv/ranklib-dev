@@ -33,6 +33,7 @@ public class PointBuilder {
   }
 
   public PointBuilder setLabel(float label) {
+    assert (label >= 0) : "Label must be non-negative, found:"+label;
     this.label = label;
     return this;
   }

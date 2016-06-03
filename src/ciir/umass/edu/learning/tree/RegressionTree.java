@@ -13,6 +13,7 @@ import ciir.umass.edu.learning.DataPoint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author vdang
@@ -56,7 +57,7 @@ public class RegressionTree {
 	 */
 	public void fit()
 	{
-		List<Split> queue = new ArrayList<Split>();
+		List<Split> queue = new ArrayList<>();
 		root = new Split(index, hist, Float.MAX_VALUE, 0);
 		root.setRoot(true);
 		root.split(trainingLabels, minLeafSupport);
@@ -142,15 +143,21 @@ public class RegressionTree {
 
 	protected void insert(List<Split> ls, Split s)
 	{
-		int i=0;
-		while(i < ls.size())
-		{
-			if(ls.get(i).getDeviance() > s.getDeviance())
-				i++;
-			else
-				break;
+		if(s == null) return;
+		try {
+			int i = 0;
+			while (i < ls.size()) {
+				if (Objects.requireNonNull(ls.get(i)).getDeviance() >
+						Objects.requireNonNull(s).getDeviance())
+					i++;
+				else
+					break;
+			}
+			ls.add(i, s);
+		} catch (NullPointerException npe) {
+			System.err.println(ls);
+			throw npe;
 		}
-		ls.add(i, s);
 	}
 
 }

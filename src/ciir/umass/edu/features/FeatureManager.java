@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class FeatureManager {
 
@@ -151,8 +152,13 @@ public class FeatureManager {
 		int countEntries = 0;
 		try {
 			String content = "";
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "ASCII"));
-			
+			BufferedReader in;
+			if(inputFile.endsWith(".gz")) {
+				in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(inputFile)), "UTF-8"));
+			} else {
+				in = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "UTF-8"));
+			}
+
 			String lastID = "";
 			boolean hasRel = false;
 			List<DataPoint> rl = new ArrayList<>();
