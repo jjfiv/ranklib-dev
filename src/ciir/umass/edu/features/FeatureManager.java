@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class FeatureManager {
 
@@ -151,8 +152,13 @@ public class FeatureManager {
 		int countEntries = 0;
 		try {
 			String content = "";
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "ASCII"));
-			
+			BufferedReader in;
+			if(inputFile.endsWith(".gz")) {
+				in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(inputFile)), "UTF-8"));
+			} else {
+				in = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "UTF-8"));
+			}
+
 			String lastID = "";
 			boolean hasRel = false;
 			List<DataPoint> rl = new ArrayList<>();
@@ -246,7 +252,7 @@ public class FeatureManager {
 	/**
 	 * Obtain all features present in a sample set. 
 	 * Important: If your data (DataPoint objects) is loaded by RankLib (e.g. command-line use) or its APIs, there is nothing to watch out for.
-	 *            If you create the DataPoint objects yourself, make sure DataPoint.featureCount correctly reflects the total number features present in your dataset.
+	 *            If you create the DataPoint objects yourself, make sure DataPoint.maxFeaturePosition correctly reflects the total number features present in your dataset.
 	 * @param dataset
 	 * @return
 	 */
@@ -256,7 +262,7 @@ public class FeatureManager {
 		{
 			throw RankLibError.create("Error in FeatureManager::getFeatureFromSampleVector(): There are no training samples.");
 		}
-		int fc = dataset.getFeatureCount();
+		int fc = dataset.getMaxFeaturePosition();
 		int[] features = new int[fc];
 		for(int i=1;i<=fc;i++)
 			features[i-1] = i;
@@ -343,6 +349,7 @@ public class FeatureManager {
 	}
 
 	public static void printQueriesForSplit(String name, List<List<RankList>> split) {
+		if(split == null) return;
 		for (int i = 0; i < split.size(); i++) {
 			List<RankList> rankLists = split.get(i);
 			System.out.print(name+"["+i+"]=");

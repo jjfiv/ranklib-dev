@@ -115,12 +115,13 @@ public abstract class DataPoint {
 	public String toString()
 	{
 		float[] fVals = getFeatureVector();
-		String output = ((int)label) + " " + "qid:" + id + " ";
+		StringBuilder output = new StringBuilder();
+		output.append((int) label).append(" ").append("qid:").append(id).append(" ");
 		for(int i=1;i<fVals.length;i++)
 			if(!isUnknown(fVals[i]))
-				output += i + ":" + fVals[i] + ((i==fVals.length-1)?"":" ");
-		output += " " + description;
-		return output;
+				output.append(i).append(":").append(fVals[i]).append((i == fVals.length - 1) ? "" : " ");
+		output.append(" ").append(description);
+		return output.toString();
 	}
 
 	public int getIntLabel() {
@@ -134,4 +135,6 @@ public abstract class DataPoint {
 	public int getKnownFeatures() {
 		return knownFeatures;
 	}
+
+	public abstract boolean hasFeature(int fid);
 }

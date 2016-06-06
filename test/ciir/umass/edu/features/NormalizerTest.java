@@ -30,7 +30,6 @@ public class NormalizerTest {
       pb.set(2, ys[i]);
       pb.setLabel(1);
       pb.setQID("foo");
-      pb.setDescription(Integer.toString(i));
       pts.add(pb.toDensePoint());
     }
 
@@ -67,7 +66,6 @@ public class NormalizerTest {
       pb.set(2, ys[i]);
       pb.setLabel(1);
       pb.setQID("foo");
-      pb.setDescription(Integer.toString(i));
       pts.add(pb.toDensePoint());
     }
 

@@ -11,6 +11,16 @@ public class DenseDataPoint extends DataPoint {
 		super(text);
 	}
 
+	@Override
+	public boolean hasFeature(int fid) {
+		if(fid <= 0 || fid >= fVals.length) {
+			return false;
+		}
+		if(isUnknown(fVals[fid]))//value for unspecified feature is 0
+			return false;
+		return true;
+	}
+
 	public DenseDataPoint(DenseDataPoint dp)
 	{
 		label = dp.label;

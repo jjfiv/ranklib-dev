@@ -60,7 +60,7 @@ public class APScorer extends MetricScorer {
 		}
 		catch(IOException ex)
 		{
-			throw RankLibError.create("Error in APScorer::loadExternalRelevanceJudgment(): ", ex);
+			throw RankLibError.create("Error in APScorer::loadExternalRelevanceJudgment("+qrelFile+"): ", ex);
 		}		
 	}
 	/**

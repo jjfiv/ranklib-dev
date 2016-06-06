@@ -78,7 +78,12 @@ public class SparseDataPoint extends DataPoint {
 
 		return -1;
 	}
-	
+
+	@Override
+	public boolean hasFeature(int fid) {
+		return locate(fid) != -1;
+	}
+
 	@Override
 	public float getFeatureValue(int fid)
 	{
