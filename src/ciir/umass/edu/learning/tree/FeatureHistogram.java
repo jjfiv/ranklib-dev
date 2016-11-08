@@ -9,14 +9,14 @@
 
 package ciir.umass.edu.learning.tree;
 
+import ciir.umass.edu.learning.DataPoint;
+import ciir.umass.edu.utilities.MyThreadPool;
+import ciir.umass.edu.utilities.WorkerThread;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import ciir.umass.edu.learning.DataPoint;
-import ciir.umass.edu.utilities.MyThreadPool;
-import ciir.umass.edu.utilities.WorkerThread;
 
 /**
  * @author vdang
@@ -157,11 +157,11 @@ public class FeatureHistogram {
 		
 		MyThreadPool p = MyThreadPool.getInstance();
 		if(p.size() == 1)
-			construct(parent, soi, labels, 0, features.length-1);
+			construct(soi, labels, 0, features.length-1);
 		else
 			p.execute(new Worker(this, parent, soi, labels), features.length);	
 	}
-	protected void construct(FeatureHistogram parent, int[] soi, double[] labels, int start, int end)
+	protected void construct(int[] soi, double[] labels, int start, int end)
 	{
 		//init
 		for(int i=start;i<=end;i++)
@@ -174,26 +174,20 @@ public class FeatureHistogram {
 		}
 		
 		//update
-		for(int i=0;i<soi.length;i++)
-		{
-			int k = soi[i];
-			for(int f=start;f<=end;f++)
-			{
+		for (int k : soi) {
+			for (int f = start; f <= end; f++) {
 				int t = sampleToThresholdMap[f][k];
 				sum[f][t] += labels[k];
-				count[f][t] ++;
-				if(f == 0)
-				{
+				count[f][t]++;
+				if (f == 0) {
 					sumResponse += labels[k];
-					sqSumResponse += labels[k]*labels[k];
+					sqSumResponse += labels[k] * labels[k];
 				}
 			}
 		}
 		
-		for(int f=start;f<=end;f++)
-		{			
-			for(int t=1;t<thresholds[f].length;t++)
-			{
+		for(int f=start;f<=end;f++) {
+			for(int t=1;t<thresholds[f].length;t++) {
 				sum[f][t] += sum[f][t-1];
 				count[f][t] += count[f][t-1];
 			}
@@ -208,13 +202,10 @@ public class FeatureHistogram {
 		sumResponse = parent.sumResponse - leftSibling.sumResponse;
 		sqSumResponse = parent.sqSumResponse - leftSibling.sqSumResponse;
 		
-		if(reuseParent)
-		{
+		if(reuseParent) {
 			sum = parent.sum;
 			count = parent.count;
-		}
-		else
-		{
+		} else {
 			sum = new double[features.length][];
 			count = new int[features.length][];
 		}
@@ -226,18 +217,14 @@ public class FeatureHistogram {
 		else
 			p.execute(new Worker(this, parent, leftSibling), features.length);
 	}
-	protected void construct(FeatureHistogram parent, FeatureHistogram leftSibling, int start, int end)
-	{
-		for(int f=start;f<=end;f++)
-		{
+	protected void construct(FeatureHistogram parent, FeatureHistogram leftSibling, int start, int end) {
+		for(int f=start;f<=end;f++) {
 			float[] threshold = thresholds[f];
-			if(!reuseParent)
-			{
+			if(!reuseParent) {
 				sum[f] = new double[threshold.length];
 				count[f] = new int[threshold.length];
 			}
-			for(int t=0;t<threshold.length;t++)
-			{
+			for(int t=0;t<threshold.length;t++) {
 				sum[f][t] = parent.sum[f][t] - leftSibling.sum[f][t];
 				count[f][t] = parent.count[f][t] - leftSibling.count[f][t];
 			}
@@ -285,7 +272,7 @@ public class FeatureHistogram {
 			int size = (int)(samplingRate * features.length);
 			usedFeatures = new int[size];
 			//put all features into a pool
-			List<Integer> fpool = new ArrayList<Integer>();
+			List<Integer> fpool = new ArrayList<>();
 			for(int i=0;i<features.length;i++)
 				fpool.add(i);
 			//do sampling, without replacement
@@ -442,7 +429,7 @@ public class FeatureHistogram {
 			else if(type == 1)
 				fh.update(labels, start, end);
 			else if(type == 2)
-				fh.construct(parent, soi, labels, start, end);
+				fh.construct(soi, labels, start, end);
 			else if(type == 3)
 				fh.construct(parent, leftSibling, start, end);
 			else if(type == 4)

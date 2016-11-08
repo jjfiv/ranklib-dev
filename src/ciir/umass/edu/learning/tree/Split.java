@@ -9,10 +9,10 @@
 
 package ciir.umass.edu.learning.tree;
 
+import ciir.umass.edu.learning.DataPoint;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import ciir.umass.edu.learning.DataPoint;
 
 /**
  * 
@@ -37,10 +37,7 @@ public class Split {
 	public int[] samples = null;
 	public FeatureHistogram hist = null;
 	
-	public Split()
-	{
-		
-	}
+	public Split() { }
 	public Split(int featureID, float threshold, double deviance)
 	{
 		this.featureID = featureID;
@@ -173,18 +170,6 @@ public class Split {
 		if(sortedSampleIDs != null)
 			return sortedSampleIDs[0];
 		return samples;
-	}
-	public int[][] getSampleSortedIndex()
-	{
-		return sortedSampleIDs;
-	}
-	public double getSumLabel()
-	{
-		return sumLabel;
-	}
-	public double getSqSumLabel()
-	{
-		return sqSumLabel;
 	}
 	public void clearSamples()
 	{
