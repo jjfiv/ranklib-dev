@@ -25,10 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//- Some Java 7 file utilities for creating directories
-
-
-
 /**
  * @author vdang
  * 

@@ -105,7 +105,7 @@ public class PointBuilder {
     pt.setDescription(description);
     pt.setLabel(label);
     pt.setFeatureVector(getRawFeatures());
-    pt.setKnownFeatures(knownFeatures.cardinality());
+    pt.setKnownFeatures(lastFeature+1);
   }
 
   public BitSet getObservedFeatures() {

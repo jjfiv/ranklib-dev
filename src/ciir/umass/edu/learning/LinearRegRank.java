@@ -98,6 +98,7 @@ public class LinearRegRank extends Ranker {
 	public double eval(DataPoint p)
 	{
 		double score = weight[weight.length-1];
+		//System.err.println("weight.length="+weight.length+"\tfeatures.length="+features.length);
 		for(int i=0;i<features.length;i++)
 			score += weight[i] * p.getFeatureValue(features[i]);
 		return score;
@@ -212,6 +213,30 @@ public class LinearRegRank extends Ranker {
 			System.arraycopy(A[i], 0, a[i], 0, A[i].length);
 		}
 		//apply the gaussian elimination process to convert the matrix A to upper triangular form
+		applyGaussianElimination(a, b);
+		return solveTriangularMatrix(a, b);
+	}
+
+	private static double[] solveTriangularMatrix(double[][] a, double[] b) {
+		//a*x=b
+		//a is now an upper triangular matrix, now the solution x can be obtained with elementary linear algebra
+		final double[] x = new double[b.length];
+		int n = b.length;
+
+		x[n-1] = b[n-1] / a[n-1][n-1];
+		for(int i=n-2;i>=0;i--)//walk back up to the first row -- we only need to care about the right to the diagonal
+		{
+			double val = b[i];
+			for(int j=i+1;j<n;j++) {
+				val -= a[i][j] * x[j];
+			}
+			x[i] = val / a[i][i];
+		}
+
+		return x;
+	}
+
+	private static void applyGaussianElimination(double[][] a, double[] b) {
 		double pivot = 0.0;
 		double multiplier = 0.0;
 		for(int j=0;j<b.length-1;j++)//loop through all columns of the matrix A
@@ -220,26 +245,12 @@ public class LinearRegRank extends Ranker {
 			for(int i=j+1;i<b.length;i++)//loop through all remaining rows
 			{
 				multiplier = a[i][j] / pivot;
-				//i-th row = i-th row - (multiplier * j-th row) 
+				//i-th row = i-th row - (multiplier * j-th row)
 				for(int k=j+1;k<b.length;k++)//loop through all remaining elements of the current row, starting at (j+1)
 					a[i][k] -= a[j][k] * multiplier;
 				b[i] -= b[j] * multiplier;
 			}
-		}		
-		//a*x=b
-		//a is now an upper triangular matrix, now the solution x can be obtained with elementary linear algebra
-		double[] x = new double[b.length];
-		int n = b.length;
-		x[n-1] = b[n-1] / a[n-1][n-1];
-		for(int i=n-2;i>=0;i--)//walk back up to the first row -- we only need to care about the right to the diagonal
-		{
-			double val = b[i];
-			for(int j=i+1;j<n;j++)
-				val -= a[i][j] * x[j];
-			x[i] = val / a[i][i];
 		}
-		
-		return x;
 	}
 
 }
